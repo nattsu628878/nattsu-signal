@@ -1,0 +1,23 @@
+---
+interface Props {
+  title: string;
+  category: 'dev' | 'music' | 'photo';
+  description: string;
+  link: string;
+  image: string;
+}
+
+const { title, category, description, link, image } = Astro.props;
+---
+
+<a class="opus-card" href={link} target="_blank" rel="noopener noreferrer">
+  <div class="thumb">
+    <img src={image} alt={`${title} のスクリーンショット`} loading="lazy" />
+  </div>
+  <div class="body">
+    <span class="category">{category}</span>
+    <h3>{title}</h3>
+    <p>{description}</p>
+    <span class="link-out">Live Demoを開く ↗</span>
+  </div>
+</a>

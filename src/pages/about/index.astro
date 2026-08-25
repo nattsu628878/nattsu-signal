@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GithubContributions from '../../components/GithubContributions.astro';
+
+const tech = [
+  'Rust', 'C', 'C++', 'Python', 'TypeScript', 'WebAssembly',
+  'Tauri', 'Godot', 'Unity', 'Web Audio API', 'Svelte', 'Astro',
+];
+
+const software = [
+  'Logic Pro', 'Ableton Live', 'Renoise', 'REAPER', 'DaVinci Resolve', 'Blender',
+];
+
+const links = [
+  { label: 'GitHub', href: 'https://github.com/nattsu628878' },
+  // note / X: アカウント未作成のためリンク未確定（projects/note-qiita.md参照）
+];
+---
+
+<BaseLayout title="About" active="about">
+  <div class="container">
+    <h1 class="section-title">About</h1>
+
+    <section style="margin-bottom: 2rem;">
+      <!-- TODO: 自己紹介文は仮。本人の言葉で書き直す -->
+      <p>構造を発見し、形にする人。音楽・DSP・Web・3Dを横断しながら、理解を実装まで持っていくことを大事にする個人研究者。</p>
+    </section>
+
+    <section style="margin-bottom: 2rem;">
+      <h2 class="section-title" style="font-size: 0.95rem;">Links</h2>
+      <ul style="list-style: none; display: flex; gap: 1rem; flex-wrap: wrap;">
+        {links.map((l) => (
+          <li>
+            <a href={l.href} target="_blank" rel="noopener noreferrer" style="color: var(--accent); font-weight: 600; text-decoration: none;">
+              {l.label} ↗
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section style="margin-bottom: 2rem;">
+      <h2 class="section-title" style="font-size: 0.95rem;">GitHub Activity</h2>
+      <GithubContributions username="nattsu628878" />
+    </section>
+
+    <section style="margin-bottom: 2rem;">
+      <h2 class="section-title" style="font-size: 0.95rem;">Tech</h2>
+      <ul style="list-style: none; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        {tech.map((t) => (
+          <li style="background: var(--accent-bg); color: var(--accent-dark); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 500;">{t}</li>
+        ))}
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="section-title" style="font-size: 0.95rem;">Creative Software</h2>
+      <ul style="list-style: none; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        {software.map((s) => (
+          <li style="background: var(--accent-bg); color: var(--accent-dark); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 500;">{s}</li>
+        ))}
+      </ul>
+    </section>
+  </div>
+</BaseLayout>

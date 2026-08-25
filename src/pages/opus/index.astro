@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import OpusCard from '../../components/OpusCard.astro';
+import { getCollection } from 'astro:content';
+
+const items = (await getCollection('opus')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+
+<BaseLayout title="Opus" active="opus">
+  <div class="container">
+    <h1 class="section-title">Opus — 作品総覧</h1>
+    <div class="opus-grid">
+      {items.map((item) => <OpusCard {...item.data} />)}
+    </div>
+  </div>
+</BaseLayout>

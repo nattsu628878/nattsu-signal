@@ -1,0 +1,68 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  active: 'home' | 'about' | 'opus' | 'article' | 'timeline';
+}
+
+const { title, active } = Astro.props;
+
+const nav: { href: string; label: string; key: Props['active'] }[] = [
+  { href: '/', label: 'Home', key: 'home' },
+  { href: '/about/', label: 'About', key: 'about' },
+  { href: '/opus/', label: 'Opus', key: 'opus' },
+  { href: '/article/', label: 'Article', key: 'article' },
+  { href: '/timeline/', label: 'Timeline', key: 'timeline' },
+];
+---
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} — nattsu-signal</title>
+    <script is:inline>
+      // FOUC回避のため<head>で即時適用
+      const stored = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (stored === 'dark' || (!stored && prefersDark)) {
+        document.documentElement.classList.add('dark-mode');
+      }
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <a class="site-title" href="/">nattsu-signal</a>
+        <nav>
+          <ul class="site-nav">
+            {nav.map((item) => (
+              <li>
+                <a href={item.href} aria-current={item.key === active ? 'page' : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <button class="theme-toggle" id="theme-toggle" aria-label="ライト/ダーク切り替え" type="button">
+          <span class="theme-icon">◐</span>
+        </button>
+      </div>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <script is:inline>
+      const btn = document.getElementById('theme-toggle');
+      btn?.addEventListener('click', () => {
+        const isDark = document.documentElement.classList.toggle('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      });
+    </script>
+  </body>
+</html>

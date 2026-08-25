@@ -1,0 +1,79 @@
+---
+interface Props {
+  username: string;
+}
+const { username } = Astro.props;
+---
+
+<div class="contributions" data-username={username}>
+  <p class="status">読み込み中…</p>
+</div>
+
+<script>
+  // 認証・ビルド時cron不要の公開API（jogruber/github-contributions-api）を
+  // クライアント側から直接叩き、常に最新の草を自作SVGで#628878に着色して描く。
+  const CELL = 11;
+  const GAP = 3;
+
+  type Day = { date: string; count: number; level: number };
+
+  async function render(root: HTMLElement) {
+    const username = root.dataset.username;
+    try {
+      const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`);
+      if (!res.ok) throw new Error(String(res.status));
+      const data: { contributions: Day[] } = await res.json();
+      const days = data.contributions;
+
+      const weeks: Day[][] = [];
+      let week: Day[] = [];
+      for (const day of days) {
+        const dow = new Date(day.date).getUTCDay();
+        if (week.length === 0 && dow !== 0) {
+          for (let i = 0; i < dow; i++) week.push({ date: '', count: 0, level: -1 });
+        }
+        week.push(day);
+        if (dow === 6) {
+          weeks.push(week);
+          week = [];
+        }
+      }
+      if (week.length) weeks.push(week);
+
+      const width = weeks.length * (CELL + GAP);
+      const height = 7 * (CELL + GAP);
+
+      const cells = weeks
+        .map((w, x) =>
+          w
+            .map((d, y) => {
+              if (d.level < 0) return '';
+              const fill = `var(--grass-${d.level})`;
+              const title = d.date ? `${d.date}: ${d.count} contributions` : '';
+              return `<rect x="${x * (CELL + GAP)}" y="${y * (CELL + GAP)}" width="${CELL}" height="${CELL}" rx="2" fill="${fill}"><title>${title}</title></rect>`;
+            })
+            .join('')
+        )
+        .join('');
+
+      root.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="GitHub contributions">
+          ${cells}
+        </svg>
+        <div class="legend">
+          <span>少</span>
+          <span class="swatch" style="background:var(--grass-0)"></span>
+          <span class="swatch" style="background:var(--grass-1)"></span>
+          <span class="swatch" style="background:var(--grass-2)"></span>
+          <span class="swatch" style="background:var(--grass-3)"></span>
+          <span class="swatch" style="background:var(--grass-4)"></span>
+          <span>多</span>
+        </div>
+      `;
+    } catch (e) {
+      root.innerHTML = `<p class="status">GitHub草の取得に失敗しました。<a href="https://github.com/${username}" target="_blank" rel="noopener noreferrer">GitHubで見る ↗</a></p>`;
+    }
+  }
+
+  document.querySelectorAll<HTMLElement>('.contributions[data-username]').forEach(render);
+</script>
