@@ -7,7 +7,7 @@ const opus = defineCollection({
     title: z.string(),
     category: z.enum(['dev', 'music', 'photo']),
     description: z.string(),
-    link: z.string().url(),
+    link: z.string().url().optional(),
     image: z.string(),
     date: z.coerce.date(),
     featured: z.boolean().default(false),

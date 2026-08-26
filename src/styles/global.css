@@ -208,7 +208,7 @@ a {
   transition: border-color 0.15s, transform 0.15s;
 }
 
-.opus-card:hover {
+.opus-card:is(a):hover {
   border-color: var(--accent);
   transform: translateY(-2px);
 }
