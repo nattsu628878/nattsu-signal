@@ -1,0 +1,90 @@
+/* PROTOTYPE — throwaway styling for the home background-art variants. */
+
+/* CSSグリッドの重なり配置: foreground/background同じセルに置き、
+   コンテナの高さは一番高い子(=背景アート)に自動追従する。 */
+.home-stack {
+  display: grid;
+}
+
+.home-stack > * {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.home-fg {
+  position: relative;
+  z-index: 1;
+}
+
+#bg-art-root {
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* デフォルトはVariant Aのみ表示。切替はSwitcherのJSがdisplayを上書きする。 */
+#bg-art-root > [data-variant]:not([data-variant='A']) {
+  display: none;
+}
+
+#bg-art-root .bg-columns {
+  column-count: 4;
+  column-gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  #bg-art-root .bg-columns {
+    column-count: 2;
+  }
+}
+
+.bg-tile {
+  break-inside: avoid;
+  margin-bottom: 1.5rem;
+  opacity: 0.16;
+  filter: grayscale(0.3);
+}
+
+.bg-tile-code {
+  font-size: 0.7rem;
+  line-height: 1.5;
+  font-family: var(--font-mono);
+}
+
+.bg-tile-code pre {
+  padding: 0.75rem;
+  border-radius: 6px;
+  overflow: hidden;
+  white-space: pre-wrap;
+  background: transparent !important;
+}
+
+.bg-tile-score {
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+}
+
+.bg-tile-score svg {
+  width: 100%;
+  height: auto;
+}
+
+/* variant B: canvas (canvasはJS側でwidth/heightを都度リサイズする) */
+#bg-art-root canvas {
+  display: block;
+  width: 100%;
+}
+
+/* variant C: プールされた要素をtransformで再配置するレイヤー */
+.bg-parallax-layer {
+  position: relative;
+}
+
+.bg-parallax-layer .bg-tile {
+  position: absolute;
+  width: 100%;
+  will-change: transform;
+}

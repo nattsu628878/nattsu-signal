@@ -1,0 +1,49 @@
+---
+// PROTOTYPE — Variant A: DOM/CSS columns, build-time Shiki + LilyPond SVG, IntersectionObserver infinite-append.
+---
+
+<div class="bg-columns" id="variant-a-columns" data-variant-root>
+  <div class="bg-a-sentinel" style="height:1px;"></div>
+</div>
+
+<script>
+  function pickRandomTemplate(): HTMLTemplateElement {
+    const templates = document.querySelectorAll<HTMLTemplateElement>('#bg-tile-templates template');
+    const i = Math.floor(Math.random() * templates.length);
+    return templates[i];
+  }
+
+  function appendBatch(container: HTMLElement, count: number) {
+    const sentinel = container.querySelector('.bg-a-sentinel');
+    for (let i = 0; i < count; i++) {
+      const tpl = pickRandomTemplate();
+      const clone = tpl.content.cloneNode(true);
+      container.insertBefore(clone, sentinel);
+    }
+  }
+
+  function init() {
+    const container = document.getElementById('variant-a-columns');
+    if (!container) return;
+    appendBatch(container, 24);
+
+    const sentinel = container.querySelector('.bg-a-sentinel');
+    if (!sentinel) return;
+
+    let total = 24;
+    const MAX_TILES = 300; // prototype safety cap
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && total < MAX_TILES) {
+          appendBatch(container, 12);
+          total += 12;
+        }
+      },
+      { rootMargin: '800px 0px' }
+    );
+    observer.observe(sentinel);
+  }
+
+  document.addEventListener('astro:page-load', init);
+  init();
+</script>

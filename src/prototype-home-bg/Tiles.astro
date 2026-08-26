@@ -1,0 +1,21 @@
+---
+// PROTOTYPE — throwaway tile source templates shared by all 3 background-art variants.
+import { Code } from 'astro:components';
+import { codeSnippets, scoreFiles } from './data';
+
+const scoreModules = import.meta.glob('./scores/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+const scores = scoreFiles.map((name) => scoreModules[`./scores/${name}`]);
+---
+
+<div id="bg-tile-templates" hidden>
+  {codeSnippets.map((s, i) => (
+    <template data-kind="code" id={`tpl-code-${i}`}>
+      <div class="bg-tile bg-tile-code">
+        <Code code={s.code} lang={s.lang} theme="github-light" />
+      </div>
+    </template>
+  ))}
+  {scores.map((svg, i) => (
+    <template data-kind="score" id={`tpl-score-${i}`} set:html={`<div class="bg-tile bg-tile-score">${svg}</div>`} />
+  ))}
+</div>

@@ -3,23 +3,44 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import OpusCard from '../components/OpusCard.astro';
 import { getCollection } from 'astro:content';
 
+// PROTOTYPE: home背景アート3案の検証。?variant=A|B|C で切替。
+// 詳細は src/prototype-home-bg/ 配下、SKILLは mattpocock-skills:prototype (UI.md sub-shape A)。
+// 決着したらこの一式(prototype-home-bg/, ここのimport・マークアップ)を削除する。
+import '../prototype-home-bg/bg-art.css';
+import Tiles from '../prototype-home-bg/Tiles.astro';
+import VariantA from '../prototype-home-bg/VariantA.astro';
+import VariantB from '../prototype-home-bg/VariantB.astro';
+import VariantC from '../prototype-home-bg/VariantC.astro';
+import Switcher from '../prototype-home-bg/Switcher.astro';
+
 const featured = (await getCollection('opus', ({ data }) => data.featured)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
 ---
 
 <BaseLayout title="Home" active="home">
-  <div class="container hero">
-    <h1>nattsu</h1>
-    <p>構造を発見し、形にする人。音楽・DSP・Web・3Dを横断して作る個人研究者。</p>
-  </div>
-  <div class="container">
-    <div class="section-header-row">
-      <h2 class="section-title">Featured</h2>
-      <a class="see-all" href="/opus/">Opusをすべて見る →</a>
+  <Tiles />
+  <div class="home-stack">
+    <div class="home-fg">
+      <div class="container hero">
+        <h1>nattsu</h1>
+        <p>構造を発見し、形にする人。音楽・DSP・Web・3Dを横断して作る個人研究者。</p>
+      </div>
+      <div class="container">
+        <div class="section-header-row">
+          <h2 class="section-title">Featured</h2>
+          <a class="see-all" href="/opus/">Opusをすべて見る →</a>
+        </div>
+        <div class="opus-grid">
+          {featured.map((item) => <OpusCard {...item.data} />)}
+        </div>
+      </div>
     </div>
-    <div class="opus-grid">
-      {featured.map((item) => <OpusCard {...item.data} />)}
+    <div id="bg-art-root">
+      <div data-variant="A"><VariantA /></div>
+      <div data-variant="B"><VariantB /></div>
+      <div data-variant="C"><VariantC /></div>
     </div>
   </div>
+  <Switcher />
 </BaseLayout>

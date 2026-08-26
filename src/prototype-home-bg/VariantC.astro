@@ -1,0 +1,73 @@
+---
+// PROTOTYPE — Variant C: 固定プール(DOM要素は増やさない)をtransformで再配置する
+// パララックス方式。カラムごとに速度を変え、画面外に出た要素を下端へリサイクルする。
+---
+
+<div id="variant-c-root" data-variant-root>
+  <div class="bg-parallax-layer" data-speed="1"></div>
+  <div class="bg-parallax-layer" data-speed="0.85"></div>
+  <div class="bg-parallax-layer" data-speed="1.15"></div>
+  <div class="bg-parallax-layer" data-speed="0.95"></div>
+</div>
+
+<script>
+  const SLOT_HEIGHT = 230;
+  const POOL_PER_LAYER = 14;
+
+  function randomTileContent(): DocumentFragment {
+    const templates = document.querySelectorAll<HTMLTemplateElement>('#bg-tile-templates template');
+    const tpl = templates[Math.floor(Math.random() * templates.length)];
+    return tpl.content.cloneNode(true) as DocumentFragment;
+  }
+
+  function initVariantC() {
+    const root = document.getElementById('variant-c-root');
+    if (!root || root.dataset.inited) return;
+    root.dataset.inited = '1';
+
+    const layers = Array.from(root.querySelectorAll<HTMLElement>('.bg-parallax-layer'));
+    const layerCount = window.innerWidth > 900 ? layers.length : 2;
+
+    type Tracked = { el: HTMLElement; slot: number; speed: number };
+    const tracked: Tracked[] = [];
+
+    layers.slice(0, layerCount).forEach((layer, li) => {
+      layer.style.width = `${100 / layerCount}%`;
+      layer.style.left = `${(100 / layerCount) * li}%`;
+      layer.style.position = 'absolute';
+      const speed = parseFloat(layer.dataset.speed || '1');
+      for (let slot = 0; slot < POOL_PER_LAYER; slot++) {
+        const el = document.createElement('div');
+        el.appendChild(randomTileContent());
+        layer.appendChild(el);
+        tracked.push({ el, slot, speed });
+      }
+    });
+
+    let nextSlotByLayer = layers.slice(0, layerCount).map(() => POOL_PER_LAYER);
+    const layerIndexOf = (el: HTMLElement) => layers.indexOf(el.parentElement as HTMLElement);
+
+    function tick() {
+      const scrollY = window.scrollY;
+      for (const t of tracked) {
+        const baseY = t.slot * SLOT_HEIGHT;
+        const parallaxY = baseY - scrollY * (t.speed - 1);
+        t.el.style.transform = `translateY(${parallaxY}px)`;
+        // 画面よりだいぶ上に出たら、その列の最後尾へリサイクル
+        if (parallaxY + SLOT_HEIGHT < scrollY - window.innerHeight) {
+          const li = layerIndexOf(t.el);
+          t.slot = nextSlotByLayer[li]++;
+          t.el.replaceChildren(randomTileContent());
+        }
+      }
+      // 一番下まで届いていなければ、必要な高さをrootに反映
+      const maxSlot = Math.max(...tracked.map((t) => t.slot));
+      root.style.minHeight = `${(maxSlot + 2) * SLOT_HEIGHT}px`;
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  document.addEventListener('astro:page-load', initVariantC);
+  initVariantC();
+</script>

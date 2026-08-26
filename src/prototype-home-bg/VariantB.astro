@@ -1,0 +1,95 @@
+---
+// PROTOTYPE — Variant B: single <canvas>, procedural draw (no per-tile DOM nodes).
+// 疑似シンタックスハイライトの簡易版（本採用するなら要作り込み）。
+import { codeSnippets } from './data';
+---
+
+<canvas id="variant-b-canvas" data-variant-root></canvas>
+<script define:vars={{ codeSnippets }}>
+  function initVariantB() {
+    const canvas = document.getElementById('variant-b-canvas');
+    if (!canvas || canvas.dataset.inited) return;
+    canvas.dataset.inited = '1';
+    const ctx = canvas.getContext('2d');
+
+    const scoreImgs = Array.from(document.querySelectorAll('#bg-tile-templates template[data-kind="score"]')).map(
+      (tpl) => {
+        const svgEl = tpl.content.querySelector('svg');
+        const svgStr = svgEl ? svgEl.outerHTML : '';
+        const img = new Image();
+        img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgStr)));
+        return img;
+      }
+    );
+
+    const KEYWORDS = /\b(fn|pub|let|const|for|if|else|return|struct|enum|def|func|await|import|class)\b/;
+
+    function drawCodeTile(y, width) {
+      const snippet = codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
+      const lines = snippet.code.split('\n');
+      ctx.font = "11px 'Space Mono', monospace";
+      let ly = y + 14;
+      for (const line of lines) {
+        const isKeywordLine = KEYWORDS.test(line);
+        ctx.fillStyle = isKeywordLine ? 'rgba(98,136,120,0.35)' : 'rgba(51,51,51,0.18)';
+        ctx.fillText(line.slice(0, 60), 12, ly);
+        ly += 15;
+      }
+      return ly - y + 14;
+    }
+
+    function drawScoreTile(y, width) {
+      const img = scoreImgs[Math.floor(Math.random() * scoreImgs.length)];
+      const h = Math.min(70, width * 0.28);
+      if (img.complete) {
+        ctx.save();
+        ctx.globalAlpha = 0.18;
+        ctx.drawImage(img, 12, y, width - 24, h);
+        ctx.restore();
+      }
+      return h + 24;
+    }
+
+    let colY = [0, 0, 0, 0];
+    const COLS = window.innerWidth > 900 ? 4 : 2;
+    const colWidth = () => canvas.width / COLS;
+
+    function resize() {
+      canvas.width = canvas.clientWidth;
+      canvas.height = Math.max(document.body.scrollHeight, window.innerHeight * 2);
+      colY = new Array(COLS).fill(0);
+      render();
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const targetBottom = window.scrollY + window.innerHeight * 2.5;
+      const w = colWidth();
+      let guard = 0;
+      while (Math.min(...colY) < Math.min(targetBottom, 6000) && guard < 400) {
+        guard++;
+        const c = colY.indexOf(Math.min(...colY));
+        const x = c * w;
+        ctx.save();
+        ctx.translate(x, colY[c]);
+        const isScore = Math.random() < 0.4;
+        const h = isScore ? drawScoreTile(0, w) : drawCodeTile(0, w);
+        ctx.restore();
+        colY[c] += h;
+      }
+      if (canvas.height < Math.min(...colY) + window.innerHeight) {
+        canvas.height = Math.min(...colY) + window.innerHeight * 2;
+      }
+    }
+
+    window.addEventListener('resize', resize);
+    window.addEventListener('scroll', () => requestAnimationFrame(render), { passive: true });
+    // canvasがdisplay:noneから表示に切り替わった直後(バリアント切替直後)も
+    // 正しい寸法で再計算されるようにResizeObserverで監視する。
+    new ResizeObserver(() => resize()).observe(canvas);
+    resize();
+  }
+
+  document.addEventListener('astro:page-load', initVariantB);
+  initVariantB();
+</script>

@@ -1,0 +1,108 @@
+---
+// PROTOTYPE — floating variant switcher. Not rendered in production builds.
+const variants: { key: string; label: string }[] = [
+  { key: 'A', label: 'DOM/CSS columns + IntersectionObserver' },
+  { key: 'B', label: 'Canvas procedural draw' },
+  { key: 'C', label: 'Pooled DOM + parallax recycle' },
+];
+---
+
+{import.meta.env.DEV && (
+  <div id="proto-switcher">
+    <button type="button" data-dir="-1" aria-label="前のバリアント">←</button>
+    <span id="proto-switcher-label"></span>
+    <button type="button" data-dir="1" aria-label="次のバリアント">→</button>
+  </div>
+)}
+
+{import.meta.env.DEV && (
+  <script define:vars={{ variants }}>
+    const KEYS = variants.map((v) => v.key);
+
+    function currentKey() {
+      const p = new URLSearchParams(location.search).get('variant');
+      return KEYS.includes(p) ? p : KEYS[0];
+    }
+
+    function applyVariant(key) {
+      document.querySelectorAll('[data-variant-root]').forEach((el) => {
+        const wrapper = el.closest('[data-variant]');
+        if (!wrapper) return;
+        wrapper.style.display = wrapper.dataset.variant === key ? 'block' : 'none';
+      });
+      const v = variants.find((v) => v.key === key);
+      const label = document.getElementById('proto-switcher-label');
+      if (label && v) label.textContent = `${v.key} — ${v.label}`;
+    }
+
+    function setVariant(key) {
+      const url = new URL(location.href);
+      url.searchParams.set('variant', key);
+      history.replaceState(null, '', url);
+      applyVariant(key);
+    }
+
+    function init() {
+      applyVariant(currentKey());
+      document.querySelectorAll('#proto-switcher button').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const dir = parseInt(btn.dataset.dir, 10);
+          const idx = KEYS.indexOf(currentKey());
+          const next = KEYS[(idx + dir + KEYS.length) % KEYS.length];
+          setVariant(next);
+        });
+      });
+      document.addEventListener('keydown', (e) => {
+        const tag = (document.activeElement && document.activeElement.tagName) || '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable) return;
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+          const dir = e.key === 'ArrowLeft' ? -1 : 1;
+          const idx = KEYS.indexOf(currentKey());
+          setVariant(KEYS[(idx + dir + KEYS.length) % KEYS.length]);
+        }
+      });
+    }
+
+    document.addEventListener('astro:page-load', init);
+    init();
+  </script>
+)}
+
+<style>
+  #proto-switcher {
+    position: fixed;
+    bottom: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #101613;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    font-family: monospace;
+    font-size: 0.8rem;
+  }
+
+  #proto-switcher button {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  #proto-switcher button:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  #proto-switcher-label {
+    white-space: nowrap;
+  }
+</style>
