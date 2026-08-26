@@ -5,23 +5,17 @@ interface Props {
   description: string;
   link?: string;
   image: string;
-  blurImage?: boolean;
   org?: 'nattsu' | 'kzgrm';
 }
 
-const { title, category, description, link, image, blurImage, org = 'nattsu' } = Astro.props;
+const { title, category, description, link, image, org = 'nattsu' } = Astro.props;
 const Tag = link ? 'a' : 'div';
 const linkProps = link ? { href: link, target: '_blank', rel: 'noopener noreferrer' } : {};
 ---
 
 <Tag class:list={['opus-card', { 'opus-card--kzgrm': org === 'kzgrm' }]} {...linkProps}>
   <div class="thumb">
-    <img
-      src={image}
-      alt={`${title} のスクリーンショット`}
-      loading="lazy"
-      class:list={[{ 'thumb-blurred': blurImage }]}
-    />
+    <img src={image} alt={`${title} のスクリーンショット`} loading="lazy" />
   </div>
   <div class="body">
     <div class="tags">

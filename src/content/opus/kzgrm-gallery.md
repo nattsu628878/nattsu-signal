@@ -5,6 +5,6 @@ description: "かざぐるまサークルの公開ギャラリーサイト。作
 link: "https://kzgrm.github.io/kzgrm-gallery/"
 image: "/opus/kzgrm-gallery.png"
 date: 2026-08-26
-featured: false
+featured: true
 org: kzgrm
 ---

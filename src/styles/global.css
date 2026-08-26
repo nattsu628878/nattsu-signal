@@ -229,11 +229,6 @@ a {
   display: block;
 }
 
-.opus-card .thumb img.thumb-blurred {
-  filter: blur(6px);
-  transform: scale(1.08);
-}
-
 .opus-card .body {
   padding: 0.9rem 1rem 1.1rem;
   display: flex;
