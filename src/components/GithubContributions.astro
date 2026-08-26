@@ -60,15 +60,6 @@ const { username } = Astro.props;
         <svg viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="GitHub contributions">
           ${cells}
         </svg>
-        <div class="legend">
-          <span>少</span>
-          <span class="swatch" style="background:var(--grass-0)"></span>
-          <span class="swatch" style="background:var(--grass-1)"></span>
-          <span class="swatch" style="background:var(--grass-2)"></span>
-          <span class="swatch" style="background:var(--grass-3)"></span>
-          <span class="swatch" style="background:var(--grass-4)"></span>
-          <span>多</span>
-        </div>
       `;
     } catch (e) {
       root.innerHTML = `<p class="status">GitHub草の取得に失敗しました。<a href="https://github.com/${username}" target="_blank" rel="noopener noreferrer">GitHubで見る ↗</a></p>`;

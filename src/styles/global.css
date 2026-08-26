@@ -209,6 +209,18 @@ a {
   margin: 0;
 }
 
+.subsection-title {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.4rem;
+  margin-bottom: 1rem;
+}
+
 .see-all {
   font-family: var(--font-mono);
   font-size: 0.85rem;
@@ -255,22 +267,6 @@ a {
 .contributions svg rect {
   stroke: var(--border-light);
   stroke-width: 1;
-}
-
-.contributions .legend {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 0.4rem;
-}
-
-.contributions .legend span.swatch {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
 }
 
 .contributions .status {
