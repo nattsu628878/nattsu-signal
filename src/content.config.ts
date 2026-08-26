@@ -11,6 +11,8 @@ const opus = defineCollection({
     image: z.string(),
     date: z.coerce.date(),
     featured: z.boolean().default(false),
+    blurImage: z.boolean().default(false),
+    org: z.enum(['nattsu', 'kzgrm']).default('nattsu'),
   }),
 });
 

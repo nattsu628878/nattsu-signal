@@ -18,6 +18,9 @@
   --text-muted: #6b7280;
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  /* kzgrm-galleryの実際の配色から採取（サークル成果物を自分の作品と区別するため） */
+  --kzgrm-accent: #5a65b1;
+  --kzgrm-accent-hover: #454e8a;
 }
 
 * {
@@ -226,12 +229,23 @@ a {
   display: block;
 }
 
+.opus-card .thumb img.thumb-blurred {
+  filter: blur(6px);
+  transform: scale(1.08);
+}
+
 .opus-card .body {
   padding: 0.9rem 1rem 1.1rem;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
   flex: 1;
+}
+
+.opus-card .tags {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .opus-card .category {
@@ -241,6 +255,35 @@ a {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--accent);
+}
+
+.opus-card .org-badge {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--kzgrm-accent);
+  border: 1px solid var(--kzgrm-accent);
+  border-radius: 4px;
+  padding: 0.05rem 0.35rem;
+}
+
+/* kzgrm成果物: 自分の作品と区別できる別配色（kzgrm-galleryの実際の配色から採取） */
+.opus-card--kzgrm {
+  border-color: var(--kzgrm-accent);
+}
+
+.opus-card--kzgrm:is(a):hover {
+  border-color: var(--kzgrm-accent-hover);
+}
+
+.opus-card--kzgrm .category {
+  color: var(--kzgrm-accent);
+}
+
+.opus-card--kzgrm .link-out {
+  color: var(--kzgrm-accent);
 }
 
 .opus-card h3 {

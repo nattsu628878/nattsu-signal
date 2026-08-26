@@ -5,19 +5,29 @@ interface Props {
   description: string;
   link?: string;
   image: string;
+  blurImage?: boolean;
+  org?: 'nattsu' | 'kzgrm';
 }
 
-const { title, category, description, link, image } = Astro.props;
+const { title, category, description, link, image, blurImage, org = 'nattsu' } = Astro.props;
 const Tag = link ? 'a' : 'div';
 const linkProps = link ? { href: link, target: '_blank', rel: 'noopener noreferrer' } : {};
 ---
 
-<Tag class="opus-card" {...linkProps}>
+<Tag class:list={['opus-card', { 'opus-card--kzgrm': org === 'kzgrm' }]} {...linkProps}>
   <div class="thumb">
-    <img src={image} alt={`${title} のスクリーンショット`} loading="lazy" />
+    <img
+      src={image}
+      alt={`${title} のスクリーンショット`}
+      loading="lazy"
+      class:list={[{ 'thumb-blurred': blurImage }]}
+    />
   </div>
   <div class="body">
-    <span class="category">{category}</span>
+    <div class="tags">
+      <span class="category">{category}</span>
+      {org === 'kzgrm' && <span class="org-badge">kzgrm</span>}
+    </div>
     <h3>{title}</h3>
     <p>{description}</p>
     {link && <span class="link-out">open ↗</span>}
