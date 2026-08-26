@@ -20,25 +20,6 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-html.dark-mode {
-  --accent: #628878;
-  --accent-hover: #7aa08a;
-  --accent-light: #2a3d32;
-  --accent-dark: #628878;
-  --accent-bg: rgba(98, 136, 120, 0.2);
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #252525;
-  --bg-tertiary: #2d2d2d;
-  --bg-panel: #2a2a2a;
-  --border-color: #404040;
-  --border-light: #353535;
-  --text-primary: #f0f0f0;
-  --text-secondary: #b0b0b0;
-  --text-muted: #888888;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-}
-
 * {
   margin: 0;
   padding: 0;
@@ -89,6 +70,11 @@ a {
   text-decoration: none;
 }
 
+.site-title .mirror-t {
+  display: inline-block;
+  transform: scaleX(-1);
+}
+
 .site-nav {
   display: flex;
   gap: 1.25rem;
@@ -110,27 +96,6 @@ a {
 .site-nav a[aria-current="page"] {
   color: var(--accent);
   border-color: var(--accent);
-}
-
-.theme-toggle {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9em;
-  color: var(--text-primary);
-  transition: all 0.15s;
-}
-
-.theme-toggle:hover {
-  border-color: var(--accent);
-  transform: scale(1.08);
 }
 
 /* ── opusカードグリッド（Bento見送り、均一グリッド） ─── */
@@ -267,14 +232,6 @@ a {
   --grass-2: #8fac9d;
   --grass-3: #628878;
   --grass-4: #3f5c4e;
-}
-
-html.dark-mode {
-  --grass-0: var(--bg-tertiary);
-  --grass-1: #33473c;
-  --grass-2: #46664f;
-  --grass-3: #628878;
-  --grass-4: #9ecbb1;
 }
 
 .contributions {
