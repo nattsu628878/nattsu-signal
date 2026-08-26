@@ -108,6 +108,86 @@ a {
   border-color: var(--accent);
 }
 
+/* ── モバイル: ハンバーガーメニュー ─────────── */
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-toggle .bar {
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-toggle.open .bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.nav-toggle.open .bar:nth-child(2) {
+  opacity: 0;
+}
+
+.nav-toggle.open .bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.site-nav-collapse {
+  display: contents;
+}
+
+@media (max-width: 640px) {
+  .nav-toggle {
+    display: flex;
+  }
+
+  .site-header-row {
+    flex-wrap: wrap;
+  }
+
+  .site-nav-collapse {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+    width: 100%;
+    order: 3;
+  }
+
+  .site-nav-collapse.open {
+    grid-template-rows: 1fr;
+  }
+
+  .site-nav-collapse > .site-nav {
+    overflow: hidden;
+    min-height: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding-top: 0.25rem;
+  }
+
+  .site-nav-collapse .site-nav li {
+    width: 100%;
+  }
+
+  .site-nav-collapse .site-nav a {
+    display: block;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+}
+
 /* ── opusカードグリッド（Bento見送り、均一グリッド） ─── */
 
 .opus-grid {

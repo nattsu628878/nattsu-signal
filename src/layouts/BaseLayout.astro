@@ -34,9 +34,21 @@ const nav: { href: string; label: string; key: Props['active'] }[] = [
   </head>
   <body>
     <header class="site-header">
-      <div class="container">
+      <div class="container site-header-row">
         <a class="site-title" href="/">natʇsu</a>
-        <nav>
+        <button
+          class="nav-toggle"
+          id="nav-toggle"
+          type="button"
+          aria-label="メニューを開く"
+          aria-expanded="false"
+          aria-controls="site-nav"
+        >
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+        <nav class="site-nav-collapse" id="site-nav">
           <ul class="site-nav">
             {nav.map((item) => (
               <li>
@@ -52,5 +64,15 @@ const nav: { href: string; label: string; key: Props['active'] }[] = [
     <main aria-label={title}>
       <slot />
     </main>
+    <script is:inline>
+      const toggle = document.getElementById('nav-toggle');
+      const nav = document.getElementById('site-nav');
+      toggle?.addEventListener('click', () => {
+        const isOpen = nav.classList.toggle('open');
+        toggle.classList.toggle('open', isOpen);
+        toggle.setAttribute('aria-expanded', String(isOpen));
+        toggle.setAttribute('aria-label', isOpen ? 'メニューを閉じる' : 'メニューを開く');
+      });
+    </script>
   </body>
 </html>
