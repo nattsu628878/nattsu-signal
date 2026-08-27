@@ -352,7 +352,10 @@ a {
 }
 
 .hero {
-  padding: 2.5rem 0 1.5rem;
+  /* 左右paddingは.containerの1remを維持する(shorthandで0を指定すると
+     画面幅が.containerのmax-widthを下回った時にnが画面端へ張り付く) */
+  padding-top: 2.5rem;
+  padding-bottom: 1.5rem;
 }
 
 .hero h1 {
