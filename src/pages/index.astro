@@ -6,6 +6,7 @@ import { getCollection } from 'astro:content';
 const featured = (await getCollection('opus', ({ data }) => data.featured)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="Home" active="home">
@@ -16,7 +17,7 @@ const featured = (await getCollection('opus', ({ data }) => data.featured)).sort
   <div class="container">
     <div class="section-header-row">
       <h2 class="section-title">Featured</h2>
-      <a class="see-all" href="/opus/">Opusをすべて見る →</a>
+      <a class="see-all" href={`${base}opus/`}>Opusをすべて見る →</a>
     </div>
     <div class="opus-grid">
       {featured.map((item) => <OpusCard {...item.data} />)}

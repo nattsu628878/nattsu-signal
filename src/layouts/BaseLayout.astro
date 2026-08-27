@@ -8,12 +8,16 @@ interface Props {
 
 const { title, active } = Astro.props;
 
+// GitHub Pagesのプロジェクトページ配信(base: /nattsu-signal)を考慮し、
+// サイト内リンクはすべてBASE_URL基準の相対パスにする。
+const base = import.meta.env.BASE_URL;
+
 const nav: { href: string; label: string; key: Props['active'] }[] = [
-  { href: '/', label: 'Home', key: 'home' },
-  { href: '/about/', label: 'About', key: 'about' },
-  { href: '/opus/', label: 'Opus', key: 'opus' },
-  { href: '/article/', label: 'Article', key: 'article' },
-  { href: '/timeline/', label: 'Timeline', key: 'timeline' },
+  { href: base, label: 'Home', key: 'home' },
+  { href: `${base}about/`, label: 'About', key: 'about' },
+  { href: `${base}opus/`, label: 'Opus', key: 'opus' },
+  { href: `${base}article/`, label: 'Article', key: 'article' },
+  { href: `${base}timeline/`, label: 'Timeline', key: 'timeline' },
 ];
 ---
 
@@ -26,8 +30,8 @@ const nav: { href: string; label: string; key: Props['active'] }[] = [
       href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=M+PLUS+1:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="icon" href={`${base}favicon.ico`} />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <title>natʇsu</title>
@@ -35,7 +39,7 @@ const nav: { href: string; label: string; key: Props['active'] }[] = [
   <body>
     <header class="site-header">
       <div class="container site-header-row">
-        <a class="site-title" href="/">natʇsu</a>
+        <a class="site-title" href={base}>natʇsu</a>
         <button
           class="nav-toggle"
           id="nav-toggle"

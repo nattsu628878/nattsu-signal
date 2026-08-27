@@ -11,11 +11,14 @@ interface Props {
 const { title, category, description, link, image, org = 'nattsu' } = Astro.props;
 const Tag = link ? 'a' : 'div';
 const linkProps = link ? { href: link, target: '_blank', rel: 'noopener noreferrer' } : {};
+// contentの image は "/opus/xxx.png" というルート絶対パスで保存されているため、
+// GitHub Pagesのbase(/nattsu-signal)を前置してから使う。
+const imageSrc = `${import.meta.env.BASE_URL}${image.replace(/^\//, '')}`;
 ---
 
 <Tag class:list={['opus-card', { 'opus-card--kzgrm': org === 'kzgrm' }]} {...linkProps}>
   <div class="thumb">
-    <img src={image} alt={`${title} のスクリーンショット`} loading="lazy" />
+    <img src={imageSrc} alt={`${title} のスクリーンショット`} loading="lazy" />
   </div>
   <div class="body">
     <div class="tags">
