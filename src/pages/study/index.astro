@@ -1,0 +1,168 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+// 自分の学習用に作ったサイトをまとめた統合リンクページ。
+// ナビゲーションには載せず(このファイルへの導線を張らない)、<meta robots noindex>で
+// 検索エンジンからも除外する。nattsu-signalがpublicリポジトリである以上、
+// ソースコード自体は誰でも読めるが、サイト上で人目にはつかない状態にする。
+
+interface LinkItem {
+  name: string;
+  desc: string;
+  href: string;
+  note?: string;
+}
+
+interface Group {
+  label: string;
+  items: LinkItem[];
+}
+
+const groups: Group[] = [
+  {
+    label: '音楽・音響',
+    items: [
+      {
+        name: 'modulation-atlas',
+        desc: '変調方式(AM/FM/PSK/QAM等13種)を実測FFT・理論式との対応付きで学ぶ図鑑',
+        href: 'https://nattsu628878.github.io/modulation-atlas/',
+      },
+      {
+        name: 'audio-dsp-workbook',
+        desc: '音声信号処理入門、全10章構成',
+        href: 'https://nattsu628878.github.io/audio-dsp-workbook/',
+      },
+      {
+        name: 'logic-fx-guide',
+        desc: 'Logic Pro内蔵エフェクトの解説サイト',
+        href: 'https://nattsu628878.github.io/logic-fx-guide/',
+      },
+      {
+        name: 'music-genre-map',
+        desc: '音楽ジャンルの歴史・系統をネットワーク図とタイムラインで辿るガイド',
+        href: 'https://nattsu628878.github.io/music-genre-map/',
+      },
+    ],
+  },
+  {
+    label: '映像・色',
+    items: [
+      {
+        name: 'davinci-resolve-guide',
+        desc: 'DaVinci Resolve(動画編集)の学習ガイド',
+        href: 'https://nattsu628878.github.io/davinci-resolve-guide/',
+      },
+      {
+        name: 'lut-visualizer',
+        desc: '3D LUT(色変換)の可視化ツール。LUT基礎知識ガイド付き',
+        href: 'https://nattsu628878.github.io/lut-visualizer/',
+      },
+    ],
+  },
+  {
+    label: '技術・創作',
+    items: [
+      {
+        name: 'technology-universe',
+        desc: 'コンピュータから広がる、技術と創作の探索地図',
+        href: 'https://nattsu628878.github.io/technology-universe/',
+      },
+    ],
+  },
+  {
+    label: 'プログラミング',
+    items: [
+      {
+        name: 'rust-syntax-tour',
+        desc: 'Rust構文を巡る学習リポジトリ',
+        href: 'https://github.com/nattsu628878/rust-syntax-tour',
+        note: 'private repo・Pages未公開',
+      },
+    ],
+  },
+];
+---
+
+<BaseLayout title="Study" active="study" noindex>
+  <div class="container">
+    <h1 class="section-title">学習リンク</h1>
+    <p class="study-lede">自分の学習用に作ったサイト・リポジトリの一覧。ナビゲーションには載せていない個人用ページ。</p>
+
+    {groups.map((group) => (
+      <div class="study-group">
+        <h2 class="subsection-title">{group.label}</h2>
+        <ul class="study-links">
+          {group.items.map((item) => (
+            <li>
+              <a href={item.href} target="_blank" rel="noopener noreferrer">
+                <span class="study-name">{item.name}</span>
+                <span class="study-desc">{item.desc}</span>
+                {item.note && <span class="study-note">{item.note}</span>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .study-lede {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+  }
+
+  .study-group {
+    margin-bottom: 2rem;
+  }
+
+  .study-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .study-links a {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: inherit;
+    padding: 0.7rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    background: var(--bg-panel);
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .study-links a:hover {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+  }
+
+  .study-name {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 0.9rem;
+  }
+
+  .study-desc {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    flex: 1;
+  }
+
+  .study-note {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
+    white-space: nowrap;
+  }
+</style>
