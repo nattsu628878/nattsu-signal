@@ -2,7 +2,7 @@ import { XMLParser } from 'fast-xml-parser';
 
 // note/QiitaはどちらもCORSヘッダーを返さないため、Blueskyのようなクライアント側fetchは
 // ブラウザにブロックされる。よってここはビルド時（GitHub Actions上のNode）で取得する。
-// 静的サイトなので新着はリビルドまで出ない → deploy.ymlのcronで日次リビルドして追従させる。
+// 静的サイトなので新着はリビルドまで出ない → 投稿したらdeploy workflowを手動実行する。
 
 export type Article = {
   title: string;
@@ -12,7 +12,7 @@ export type Article = {
 };
 
 const NOTE_USER = 'nattsu_628878';
-const QIITA_USER = 'nattsu628878';
+const QIITA_USER = 'nattsu';
 
 const TIMEOUT_MS = 15000;
 

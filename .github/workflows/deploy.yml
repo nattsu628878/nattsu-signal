@@ -4,9 +4,7 @@ on:
   push:
     branches: [master]
   # articleページはnote/QiitaのフィードをCORS制約のためビルド時に取得している。
-  # 静的サイトなので、新着記事を出すにはリビルドが要る（毎日6:17 JST = 21:17 UTC）。
-  schedule:
-    - cron: '17 21 * * *'
+  # 新着記事を反映するには、投稿後にここから手動でリビルドする（Actions → Run workflow）。
   workflow_dispatch:
 
 permissions:
