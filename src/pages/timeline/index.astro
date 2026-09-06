@@ -1,10 +1,36 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlueskyTimeline from '../../components/BlueskyTimeline.astro';
+
+const HANDLE = 'nattsu628878.bsky.social';
 ---
 
 <BaseLayout title="Timeline" active="timeline">
   <div class="container">
     <h1 class="section-title">Timeline</h1>
-    <p style="color: var(--text-secondary);">Xへの投稿リンクを並べる予定。準備中。</p>
+    <p class="lead">
+      articleにするほどでもない小さな投稿。<a
+        href={`https://bsky.app/profile/${HANDLE}`}
+        target="_blank"
+        rel="noopener noreferrer">Bluesky ↗</a
+      >
+    </p>
+    <BlueskyTimeline handle={HANDLE} />
   </div>
 </BaseLayout>
+
+<style>
+  .lead {
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+  }
+
+  .lead a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .lead a:hover {
+    text-decoration: underline;
+  }
+</style>

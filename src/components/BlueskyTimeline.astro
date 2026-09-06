@@ -1,0 +1,170 @@
+---
+interface Props {
+  handle: string;
+  limit?: number;
+}
+const { handle, limit = 30 } = Astro.props;
+---
+
+<div class="bsky-timeline" data-handle={handle} data-limit={limit}>
+  <p class="status">読み込み中…</p>
+</div>
+
+<script>
+  // Blueskyの公開API（AT Protocol）は認証不要・CORS許可済みなので、
+  // GitHub草と同じくクライアント側から直接叩く。静的サイトのまま常に最新が出る。
+  const ENDPOINT = 'https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed';
+
+  type Post = {
+    uri: string;
+    record: { text?: string; createdAt?: string };
+    embed?: { $type?: string; images?: { thumb: string; alt?: string }[] };
+    replyCount?: number;
+    repostCount?: number;
+    likeCount?: number;
+  };
+  type FeedItem = { post: Post; reason?: { $type?: string } };
+
+  const escapeHtml = (s: string) =>
+    s.replace(
+      /[&<>"']/g,
+      (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!
+    );
+
+  // at://did:plc:xxx/app.bsky.feed.post/RKEY → https://bsky.app/profile/<handle>/post/RKEY
+  const permalink = (uri: string, handle: string) =>
+    `https://bsky.app/profile/${handle}/post/${uri.split('/').pop()}`;
+
+  const formatDate = (iso?: string) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
+  async function render(root: HTMLElement) {
+    const handle = root.dataset.handle!;
+    const limit = root.dataset.limit ?? '30';
+    const profileUrl = `https://bsky.app/profile/${handle}`;
+
+    try {
+      const res = await fetch(
+        `${ENDPOINT}?actor=${encodeURIComponent(handle)}&limit=${limit}&filter=posts_no_replies`
+      );
+      if (!res.ok) throw new Error(String(res.status));
+      const data: { feed: FeedItem[] } = await res.json();
+
+      // リポストは自分の発信ではないので落とす
+      const posts = data.feed.filter((item) => !item.reason).map((item) => item.post);
+
+      if (posts.length === 0) {
+        root.innerHTML = `<p class="status">まだ投稿がありません。<a href="${profileUrl}" target="_blank" rel="noopener noreferrer">Blueskyで見る ↗</a></p>`;
+        return;
+      }
+
+      root.innerHTML = posts
+        .map((post) => {
+          const text = escapeHtml(post.record.text ?? '').replace(/\n/g, '<br />');
+          const images = (post.embed?.images ?? [])
+            .map(
+              (img) =>
+                `<img src="${escapeHtml(img.thumb)}" alt="${escapeHtml(img.alt ?? '')}" loading="lazy" />`
+            )
+            .join('');
+          return `
+            <article class="bsky-post">
+              <time datetime="${escapeHtml(post.record.createdAt ?? '')}">${formatDate(post.record.createdAt)}</time>
+              <div class="bsky-text">${text}</div>
+              ${images ? `<div class="bsky-images">${images}</div>` : ''}
+              <a class="link-out" href="${permalink(post.uri, handle)}" target="_blank" rel="noopener noreferrer">open ↗</a>
+            </article>
+          `;
+        })
+        .join('');
+    } catch {
+      root.innerHTML = `<p class="status">Blueskyの取得に失敗しました。<a href="${profileUrl}" target="_blank" rel="noopener noreferrer">Blueskyで見る ↗</a></p>`;
+    }
+  }
+
+  document.querySelectorAll<HTMLElement>('.bsky-timeline[data-handle]').forEach(render);
+</script>
+
+<style>
+  .bsky-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--border-light);
+    border: 1px solid var(--border-light);
+  }
+
+  .bsky-timeline :global(.bsky-post) {
+    display: grid;
+    grid-template-columns: 7rem 1fr auto;
+    align-items: start;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-panel);
+  }
+
+  .bsky-timeline :global(.bsky-post time) {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .bsky-timeline :global(.bsky-text) {
+    color: var(--text-primary);
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+  }
+
+  .bsky-timeline :global(.bsky-images) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    grid-column: 2;
+    margin-top: 0.5rem;
+  }
+
+  .bsky-timeline :global(.bsky-images img) {
+    max-width: 180px;
+    border: 1px solid var(--border-light);
+  }
+
+  .bsky-timeline :global(.link-out) {
+    /* 画像付き投稿でも最初の行の右端に留める（自動配置だと2行目へ落ちる） */
+    grid-row: 1;
+    grid-column: 3;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .bsky-timeline :global(.link-out:hover) {
+    text-decoration: underline;
+  }
+
+  .bsky-timeline :global(.status) {
+    padding: 1rem;
+    background: var(--bg-panel);
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 640px) {
+    .bsky-timeline :global(.bsky-post) {
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem 1rem;
+    }
+    .bsky-timeline :global(.link-out) {
+      grid-column: 2;
+    }
+    .bsky-timeline :global(.bsky-text) {
+      grid-column: 1 / -1;
+    }
+    .bsky-timeline :global(.bsky-images) {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
