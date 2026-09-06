@@ -1,10 +1,129 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getArticles } from '../../lib/articles';
+
+const articles = await getArticles();
+
+const formatDate = (iso: string) => {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
 ---
 
 <BaseLayout title="Article" active="article">
   <div class="container">
     <h1 class="section-title">Article</h1>
-    <p style="color: var(--text-secondary);">note・Qiita・YouTubeへの投稿リンクをここに並べる予定。投稿が揃うまで準備中。</p>
+    <p class="lead">
+      note・Qiitaへの投稿。<a
+        href="https://note.com/nattsu_628878"
+        target="_blank"
+        rel="noopener noreferrer">note ↗</a
+      >
+    </p>
+
+    {
+      articles.length === 0 ? (
+        <p class="empty">まだ投稿がありません。</p>
+      ) : (
+        <ul class="article-list">
+          {articles.map((article) => (
+            <li>
+              <a href={article.url} target="_blank" rel="noopener noreferrer">
+                <time datetime={article.date}>{formatDate(article.date)}</time>
+                <span class="title">{article.title}</span>
+                <span class:list={['source', `source--${article.source.toLowerCase()}`]}>
+                  {article.source}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
   </div>
 </BaseLayout>
+
+<style>
+  .lead {
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+  }
+
+  .lead a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .lead a:hover {
+    text-decoration: underline;
+  }
+
+  .empty {
+    padding: 1rem;
+    border: 1px solid var(--border-light);
+    background: var(--bg-panel);
+    color: var(--text-secondary);
+  }
+
+  .article-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--border-light);
+    border: 1px solid var(--border-light);
+  }
+
+  .article-list a {
+    display: grid;
+    grid-template-columns: 7rem 1fr auto;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-panel);
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+
+  .article-list a:hover {
+    background: var(--bg-tertiary);
+  }
+
+  .article-list a:hover .title {
+    color: var(--accent);
+  }
+
+  time {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .title {
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+
+  .source {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .article-list a {
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem 1rem;
+    }
+
+    .title {
+      grid-column: 1 / -1;
+      order: 1;
+    }
+  }
+</style>

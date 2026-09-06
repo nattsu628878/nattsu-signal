@@ -12,7 +12,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^7.2.6"
+    "astro": "^7.2.6",
+    "fast-xml-parser": "^5.11.1"
   },
   "allowScripts": {
     "esbuild": true

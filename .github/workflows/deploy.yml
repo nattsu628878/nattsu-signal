@@ -3,6 +3,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [master]
+  # articleページはnote/QiitaのフィードをCORS制約のためビルド時に取得している。
+  # 静的サイトなので、新着記事を出すにはリビルドが要る（毎日6:17 JST = 21:17 UTC）。
+  schedule:
+    - cron: '17 21 * * *'
   workflow_dispatch:
 
 permissions:
