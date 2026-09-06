@@ -1,12 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import OpusCard from '../components/OpusCard.astro';
-import { getCollection } from 'astro:content';
+import VideoGallery from '../components/VideoGallery.astro';
+import { getVideos } from '../lib/videos';
 
-const featured = (await getCollection('opus', ({ data }) => data.featured)).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
-);
-const base = import.meta.env.BASE_URL;
+const videos = await getVideos();
 ---
 
 <BaseLayout title="Home" active="home">
@@ -16,11 +13,14 @@ const base = import.meta.env.BASE_URL;
   </div>
   <div class="container">
     <div class="section-header-row">
-      <h2 class="section-title">Featured</h2>
-      <a class="see-all" href={`${base}opus/`}>Opusをすべて見る →</a>
+      <h2 class="section-title">Gallery</h2>
+      <a
+        class="see-all"
+        href="https://www.youtube.com/@nattsu6__8878"
+        target="_blank"
+        rel="noopener noreferrer">YouTube ↗</a
+      >
     </div>
-    <div class="opus-grid">
-      {featured.map((item) => <OpusCard {...item.data} />)}
-    </div>
+    <VideoGallery videos={videos} />
   </div>
 </BaseLayout>

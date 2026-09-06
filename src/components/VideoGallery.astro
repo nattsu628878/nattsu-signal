@@ -1,0 +1,107 @@
+---
+import { thumbnailUrl, thumbnailFallbackUrl, type Video } from '../lib/videos';
+
+interface Props {
+  videos: Video[];
+}
+const { videos } = Astro.props;
+---
+
+{
+  videos.length === 0 ? (
+    <p class="empty">動画を読み込めませんでした。</p>
+  ) : (
+    <div class="video-grid">
+      {videos.map((video) => (
+        <a class="video-card" href={video.url} target="_blank" rel="noopener noreferrer">
+          <div class="thumb">
+            <img
+              src={thumbnailUrl(video.id)}
+              data-fallback={thumbnailFallbackUrl(video.id)}
+              alt={video.title}
+              loading="lazy"
+            />
+          </div>
+          <div class="meta">
+            <span class="title">{video.title}</span>
+            <time datetime={video.date}>{video.date.slice(0, 10)}</time>
+          </div>
+        </a>
+      ))}
+    </div>
+  )
+}
+
+<script>
+  // maxresdefaultは動画によっては存在しない（旧nattsu-galleryと同じくhqへ落とす）
+  document.querySelectorAll<HTMLImageElement>('.video-card img[data-fallback]').forEach((img) => {
+    img.addEventListener('error', () => {
+      const fallback = img.dataset.fallback;
+      if (fallback && img.src !== fallback) img.src = fallback;
+    });
+  });
+</script>
+
+<style>
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .video-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-light);
+    background: var(--bg-panel);
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: border-color 0.15s;
+  }
+
+  .video-card:hover {
+    border-color: var(--accent);
+  }
+
+  .thumb {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--bg-tertiary);
+  }
+
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.75rem;
+  }
+
+  .title {
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  .video-card:hover .title {
+    color: var(--accent);
+  }
+
+  time {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .empty {
+    padding: 1rem;
+    border: 1px solid var(--border-light);
+    background: var(--bg-panel);
+    color: var(--text-secondary);
+  }
+</style>
