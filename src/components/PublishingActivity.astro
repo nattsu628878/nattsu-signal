@@ -16,13 +16,15 @@ const sources = [
 ---
 
 <div class="publishing-activity" data-events={JSON.stringify(events)}>
-  <div class="contributions" tabindex="0" aria-label="投稿・更新カレンダー（横スクロール可）">
+  <div class="contributions" tabindex="0" aria-label="GitHub活動と投稿・更新カレンダー（横スクロール可）">
     <p class="status">読み込み中…</p>
   </div>
   <ul class="legend" aria-label="投稿の種類">
+    <li><span class="github-key" aria-hidden="true"></span>GitHub（背景の濃淡）</li>
     {sources.map(({ name, color }) => <li><span style={`background: ${color}`} aria-hidden="true"></span>{name}</li>)}
   </ul>
   <p class="activity-status" aria-live="polite">Timelineを読み込み中…</p>
+  <p class="github-status" aria-live="polite">GitHubを読み込み中…</p>
   <p class="coverage">過去1年・UTC日付。取得できた投稿のみ表示（YouTubeは最新15件、noteはRSS配信分、Qiitaは最新20件）。記事・動画はサイト更新時に反映。</p>
   <noscript>投稿カレンダーを表示するにはJavaScriptを有効にしてください。</noscript>
 </div>
@@ -38,6 +40,8 @@ const sources = [
     const events: Activity[] = JSON.parse(root.dataset.events ?? '[]');
     const grid = root.querySelector<HTMLElement>('.contributions')!;
     const status = root.querySelector<HTMLElement>('.activity-status')!;
+    const githubStatus = root.querySelector<HTMLElement>('.github-status')!;
+    const github = new Map<string, { count: number; level: number }>();
     const today = new Date().toISOString().slice(0, 10);
     const end = Date.parse(today);
     const startDate = new Date(end);
@@ -60,23 +64,24 @@ const sources = [
       }
       const width = Math.ceil(((end - start) / DAY + 1 + offset) / 7) * 14;
       const svg = document.createElementNS(NS, 'svg');
-      for (const [key, value] of Object.entries({ viewBox: `0 0 ${width} 98`, width: String(width), height: '98', role: 'img', 'aria-label': `${new Date(start).toISOString().slice(0, 10)}〜${today}の投稿・更新履歴` })) svg.setAttribute(key, value);
+      for (const [key, value] of Object.entries({ viewBox: `0 0 ${width} 98`, width: String(width), height: '98', role: 'img', 'aria-label': `${new Date(start).toISOString().slice(0, 10)}〜${today}のGitHub活動と投稿・更新履歴` })) svg.setAttribute(key, value);
       for (let timestamp = start, index = offset; timestamp <= end; timestamp += DAY, index++) {
         const date = new Date(timestamp).toISOString().slice(0, 10);
         const values = counts.get(date) ?? [0, 0, 0, 0];
         const x = Math.floor(index / 7) * 14;
         const y = (index % 7) * 14;
         const group = document.createElementNS(NS, 'g');
-        const label = `${date}: ${sources.map((name, i) => `${name} ${values[i]}件`).join(' / ')}`;
+        const contribution = github.get(date);
+        const label = `${date}: GitHub ${contribution ? `${contribution.count}件` : '未取得'} / ${sources.map((name, i) => `${name} ${values[i]}件`).join(' / ')}`;
         const title = document.createElementNS(NS, 'title');
         title.textContent = label;
         group.append(title);
-        if (values.some(Boolean)) {
+        if (values.some(Boolean) || contribution?.count) {
           group.setAttribute('tabindex', '0');
           group.setAttribute('aria-label', label);
         }
         const cell = document.createElementNS(NS, 'rect');
-        for (const [key, value] of Object.entries({ x, y, width: 11, height: 11, rx: 2, fill: 'var(--grass-0)' })) cell.setAttribute(key, String(value));
+        for (const [key, value] of Object.entries({ x, y, width: 11, height: 11, rx: 2, fill: `var(--grass-${contribution?.level ?? 0})` })) cell.setAttribute(key, String(value));
         group.append(cell);
         values.forEach((count, i) => {
           if (!count) return;
@@ -85,6 +90,8 @@ const sources = [
           dot.setAttribute('cy', String(y + (i < 2 ? 3 : 8)));
           dot.setAttribute('r', '2');
           dot.setAttribute('fill', colors[i]);
+          dot.setAttribute('stroke', 'var(--bg-panel)');
+          dot.setAttribute('stroke-width', '0.5');
           group.append(dot);
         });
         group.addEventListener('focus', () => { status.textContent = label; });
@@ -95,6 +102,18 @@ const sources = [
     }
 
     draw();
+    const githubTask = (async () => {
+      try {
+        const response = await fetch('https://github-contributions-api.jogruber.de/v4/nattsu628878?y=last', { signal: AbortSignal.timeout(15000) });
+        if (!response.ok) throw new Error(String(response.status));
+        const data = await response.json();
+        for (const day of data.contributions) github.set(day.date, { count: day.count, level: Math.max(0, Math.min(4, day.level)) });
+        githubStatus.textContent = '';
+      } catch {
+        githubStatus.textContent = 'GitHubの取得に失敗しました。投稿・更新の点のみ表示しています。';
+      }
+      draw();
+    })();
     try {
       let cursor: string | undefined;
       const seen = new Set<string>();
@@ -121,6 +140,7 @@ const sources = [
       status.textContent = 'Timelineの取得に失敗しました。取得済みの投稿のみ表示しています。';
     }
     draw();
+    await githubTask;
   }
 
   document.querySelectorAll<HTMLElement>('.publishing-activity').forEach(renderActivity);
@@ -130,6 +150,8 @@ const sources = [
   .legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; list-style: none; padding: 0; margin: 0.65rem 0; font-size: 0.8rem; }
   .legend li { display: flex; align-items: center; gap: 0.4rem; }
   .legend span { width: 0.5rem; height: 0.5rem; border-radius: 50%; }
-  .activity-status, .coverage { font-size: 0.75rem; color: var(--text-muted); margin: 0.4rem 0; }
+  .legend .github-key { background: var(--grass-3); border-radius: 2px; }
+  .activity-status, .github-status, .coverage { font-size: 0.75rem; color: var(--text-muted); margin: 0.4rem 0; }
+  .github-status:empty { display: none; }
   .publishing-activity :global(g:focus) { outline: 1px solid var(--accent); }
 </style>
