@@ -196,7 +196,6 @@ const sources = [
           cell.setAttribute('aria-expanded', 'true');
           detail.hidden = true;
           zoom.replaceChildren();
-          zoom.style.background = `var(--grass-${contribution?.level ?? 0})`;
           zoom.setAttribute('aria-label', label);
           sources.forEach((source, i) => {
             const quadrant = document.createElement('div');
@@ -322,13 +321,11 @@ const sources = [
   .publishing-activity :global(.activity-cell) { position: relative; width: 11px; height: 11px; border: 1px solid var(--border-light); border-radius: 2px; padding: 0; cursor: pointer; transition: transform 180ms ease, box-shadow 180ms ease; }
   .publishing-activity :global(.activity-cell:focus-visible), .publishing-activity :global(.activity-cell[aria-expanded="true"]) { z-index: 2; outline: 1px solid var(--accent); }
   .publishing-activity :global(.activity-dot) { position: absolute; width: 3px; height: 3px; border-radius: 50%; box-shadow: 0 0 0 0.4px var(--bg-panel); pointer-events: none; }
-  .day-zoom { position: absolute; z-index: 9; width: 90px; height: 90px; padding: 3px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 3px; border: 1px solid var(--accent); border-radius: 3px; }
+  .day-zoom { position: absolute; z-index: 9; width: 90px; height: 90px; padding: 3px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 3px; }
   .day-zoom[hidden] { display: none; }
-  .day-zoom:not([hidden]) { animation: zoom-in 200ms ease-out; }
   .day-zoom :global(.zoom-quadrant) { display: grid; grid-template-columns: repeat(auto-fit, minmax(5px, 1fr)); gap: 2px; min-height: 0; }
   .day-zoom :global(.zoom-post) { display: block; min-height: 0; border-radius: 2px; box-shadow: 0 0 0 1px #ffffff80; transition: transform 140ms ease; }
   .day-zoom :global(.zoom-post:hover), .day-zoom :global(.zoom-post:focus-visible) { transform: scale(1.12); outline: 2px solid var(--text-primary); outline-offset: 2px; z-index: 1; }
-  @keyframes zoom-in { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
   .day-detail { position: absolute; z-index: 10; width: min(320px, 100%); max-height: 280px; overflow: auto; padding: 0.8rem; border: 1px solid var(--border-light); border-radius: 8px; background: var(--bg-panel); box-shadow: 0 8px 28px #0002; font-size: 0.8rem; }
   .day-detail:not([hidden]) { animation: appear 160ms ease-out; }
   .day-detail :global(ul) { list-style: none; padding: 0; margin: 0.5rem 0 0; }
@@ -336,5 +333,5 @@ const sources = [
   .day-detail :global(a:hover), .day-detail :global(a:focus-visible) { background: var(--accent-bg); outline: 1px solid var(--accent); }
   .day-detail :global(.post-marker) { flex: 0 0 8px; height: 8px; border-radius: 2px; }
   @keyframes appear { from { opacity: 0; transform: translateY(-3px) scale(0.98); } to { opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) { .publishing-activity :global(.activity-cell), .day-zoom :global(.zoom-post) { transition: none; } .day-detail:not([hidden]), .day-zoom:not([hidden]) { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .publishing-activity :global(.activity-cell), .day-zoom :global(.zoom-post) { transition: none; } .day-detail:not([hidden]) { animation: none; } }
 </style>
