@@ -110,6 +110,13 @@ const sources = [
         counts.set(date, values);
         posts.set(date, [...(posts.get(date) ?? []), event]);
       }
+      // The day cell's own fisheye magnification was deliberately toned down (it read as too
+      // aggressive at full strength), which leaves the focused cell only ~2x its base 11px most
+      // of the time. That's fine for the cell itself, but the zoom overlay reuses that same size
+      // for its own box -- and a quadrant of an ~22px box has no room left once a single source
+      // has more than one post that day, collapsing them to sub-pixel slivers. Give the overlay
+      // its own floor, independent of how modestly the cell itself is currently magnified.
+      const MIN_ZOOM_SIZE = 64;
       const width = Math.ceil(((end - start) / DAY + 1 + offset) / 7) * 14;
       const calendar = document.createElement('div');
       calendar.className = 'activity-calendar';
@@ -155,7 +162,10 @@ const sources = [
           const originalY = calendarBounds.top + 4 + row * 14 + 5.5;
           button.style.visibility = '';
           button.style.transform = `translate(${centerX - originalX}px, ${centerY - originalY}px) scale(${size / 11})`;
-          if (column === focusColumn && row === focusRow) selected = { left: centerX - size / 2 - bounds.left, top: centerY - size / 2 - bounds.top, size };
+          if (column === focusColumn && row === focusRow) {
+            const zoomSize = Math.max(size, MIN_ZOOM_SIZE);
+            selected = { left: centerX - zoomSize / 2 - bounds.left, top: centerY - zoomSize / 2 - bounds.top, size: zoomSize };
+          }
         });
         return selected;
       };
@@ -331,11 +341,19 @@ const sources = [
   .publishing-activity :global(.activity-cell)::before { content: ''; position: absolute; inset: -2.5px; }
   .publishing-activity :global(.activity-cell:focus-visible), .publishing-activity :global(.activity-cell[aria-expanded="true"]) { z-index: 2; outline: 1px solid var(--accent); }
   .publishing-activity :global(.activity-dot) { position: absolute; width: 3px; height: 3px; border-radius: 50%; box-shadow: 0 0 0 0.4px var(--bg-panel); pointer-events: none; }
+  /* The zoom overlay already shows the same day's posts as real, clickable squares, positioned
+     right over this same cell -- leaving the small corner dots showing too doubled up every
+     source's mark (most visibly Bluesky's, bottom-right in both places) the moment a cell opened. */
+  .publishing-activity :global(.activity-cell[aria-expanded="true"] .activity-dot) { display: none; }
   .day-zoom { position: absolute; z-index: 9; width: 90px; height: 90px; padding: 3px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 3px; }
   .day-zoom[hidden] { display: none; }
-  .day-zoom :global(.zoom-quadrant) { display: grid; grid-template-columns: repeat(auto-fit, minmax(5px, 1fr)); gap: 2px; min-height: 0; }
-  .day-zoom :global(.zoom-post) { display: block; min-height: 0; border-radius: 2px; box-shadow: 0 0 0 1px #ffffff80; transition: transform 140ms ease; }
-  .day-zoom :global(.zoom-post:hover), .day-zoom :global(.zoom-post:focus-visible) { transform: scale(1.12); outline: 2px solid var(--text-primary); outline-offset: 2px; z-index: 1; }
+  .day-zoom :global(.zoom-quadrant) { display: grid; grid-template-columns: repeat(auto-fit, minmax(5px, 1fr)); grid-auto-rows: minmax(5px, 1fr); gap: 2px; min-height: 0; }
+  .day-zoom :global(.zoom-post) { position: relative; display: block; min-height: 0; border-radius: 2px; box-shadow: 0 0 0 1px #ffffff80; transition: transform 140ms ease; }
+  /* Same idea as the calendar cells' own gap coverage: an invisible hit-area reaching to the
+     midpoint of the 2px gap between posts, so a day with several same-source posts crammed into
+     one quadrant doesn't grow dead zones between them as they get smaller. */
+  .day-zoom :global(.zoom-post)::before { content: ''; position: absolute; inset: -1px; }
+  .day-zoom :global(.zoom-post:hover), .day-zoom :global(.zoom-post:focus-visible) { transform: scale(2.2); outline: 2px solid var(--text-primary); outline-offset: 2px; z-index: 2; }
   .day-detail { position: absolute; z-index: 10; width: min(320px, 100%); max-height: 280px; overflow: auto; padding: 0.8rem; border: 1px solid var(--border-light); border-radius: 8px; background: var(--bg-panel); box-shadow: 0 8px 28px #0002; font-size: 0.8rem; }
   .day-detail:not([hidden]) { animation: appear 160ms ease-out; }
   .day-detail :global(strong) { display: block; margin-bottom: 0.3rem; }
