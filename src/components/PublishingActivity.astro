@@ -59,13 +59,15 @@ const sources = [
     const scheduleClose = () => {
       cancelClose();
       closeTimer = setTimeout(() => {
-        if (!zoom.matches(':hover') && !zoom.contains(document.activeElement) && !detail.matches(':hover') && !detail.contains(document.activeElement) && document.activeElement !== activeCell) close();
+        if (!grid.matches(':hover') && !zoom.matches(':hover') && !zoom.contains(document.activeElement) && !detail.matches(':hover') && !detail.contains(document.activeElement) && document.activeElement !== activeCell) close();
       }, 220);
     };
     detail.addEventListener('pointerenter', cancelClose);
     detail.addEventListener('pointerleave', scheduleClose);
     zoom.addEventListener('pointerenter', cancelClose);
     zoom.addEventListener('pointerleave', scheduleClose);
+    grid.addEventListener('pointerenter', cancelClose);
+    grid.addEventListener('pointerleave', scheduleClose);
     root.addEventListener('focusout', () => setTimeout(() => {
       if (!root.contains(document.activeElement)) close();
     }, 0));
@@ -237,7 +239,6 @@ const sources = [
           zoom.style.height = `${selected.size}px`;
         };
         cell.addEventListener('pointerenter', (event) => { if (event.pointerType !== 'touch') open(); });
-        cell.addEventListener('pointerleave', scheduleClose);
         cell.addEventListener('focus', () => {
           if (suppressFocus) return;
           cell.scrollIntoView({ block: 'nearest', inline: 'nearest' });
