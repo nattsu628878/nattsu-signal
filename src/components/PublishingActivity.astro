@@ -42,7 +42,8 @@ const sources = [
     const end = Date.parse(today);
     const startDate = new Date(end);
     startDate.setUTCFullYear(startDate.getUTCFullYear() - 1);
-    startDate.setUTCDate(startDate.getUTCDate() + 1);
+    // GitHubの草と同じく、1年前を含む週の日曜日から揃える。
+    startDate.setUTCDate(startDate.getUTCDate() - startDate.getUTCDay());
     const start = startDate.getTime();
     const offset = startDate.getUTCDay();
 
