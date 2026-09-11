@@ -34,7 +34,7 @@ html {
 }
 
 :root {
-  --font-mono: 'Space Mono', 'M PLUS 1', monospace;
+  --font-mono: 'Space Mono', 'M PLUS 1', 'Noto Sans Mono', monospace;
   --font-body: 'M PLUS 1', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
