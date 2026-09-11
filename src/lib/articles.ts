@@ -15,12 +15,34 @@ const NOTE_USER = 'nattsu_628878';
 const QIITA_USER = 'nattsu';
 
 const TIMEOUT_MS = 15000;
+const RETRY_ATTEMPTS = 3;
+const RETRY_DELAY_MS = 800;
 
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// GitHub ActionsのランナーIPから叩くと、note/Qiita側が単発の5xxを返すことがある
+// (videos.tsのYouTube RSSで実際に起きた: 500→404と続けて失敗し、その回のビルドだけ
+// 投稿が丸ごと消えた)。4xxは再試行しても変わらないため(Qiitaの404=アカウント未作成
+// はfetchQiita側で意図的に処理する)即座に返し、5xxとネットワークエラーだけ一過性と
+// みなして数回だけ再試行する。
 async function fetchWithTimeout(url: string, init?: RequestInit) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    return await fetch(url, { ...init, signal: controller.signal });
+    let lastError: unknown;
+    for (let attempt = 1; attempt <= RETRY_ATTEMPTS; attempt++) {
+      try {
+        const res = await fetch(url, { ...init, signal: controller.signal });
+        if (res.ok || res.status < 500) return res;
+        lastError = new Error(`${url} ${res.status}`);
+      } catch (e) {
+        lastError = e;
+      }
+      if (attempt < RETRY_ATTEMPTS) await wait(RETRY_DELAY_MS * attempt);
+    }
+    throw lastError;
   } finally {
     clearTimeout(timer);
   }

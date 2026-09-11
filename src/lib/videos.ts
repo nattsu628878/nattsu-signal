@@ -14,21 +14,42 @@ export type Video = {
 const CHANNEL_ID = 'UCYShN99VWKuNvO7cboaDmHQ';
 
 const TIMEOUT_MS = 15000;
+const RETRY_ATTEMPTS = 3;
+const RETRY_DELAY_MS = 800;
 
 /** 旧nattsu-galleryと同じく、まずmaxresを狙い、無ければhqへ落とす */
 export const thumbnailUrl = (id: string) => `https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
 export const thumbnailFallbackUrl = (id: string) => `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// GitHub ActionsのランナーIPから叩くと、YouTube側のRSSが単発の404/500を返すことがある
+// (同じチャンネルへ数秒後に再取得すると通ることが多い一過性のもの)。1回失敗しただけで
+// このビルドのカレンダー・ギャラリーからYouTubeの投稿が丸ごと消えるのを避けるため、
+// 短い間隔で数回だけ再試行してから諦める。
+async function fetchFeed(signal: AbortSignal): Promise<Response> {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= RETRY_ATTEMPTS; attempt++) {
+    try {
+      const res = await fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`, { signal });
+      if (res.ok) return res;
+      lastError = new Error(`YouTube RSS ${res.status}`);
+    } catch (e) {
+      lastError = e;
+    }
+    if (attempt < RETRY_ATTEMPTS) await wait(RETRY_DELAY_MS * attempt);
+  }
+  throw lastError;
+}
 
 export async function getVideos(): Promise<Video[]> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
-    const res = await fetch(
-      `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`,
-      { signal: controller.signal }
-    );
-    if (!res.ok) throw new Error(`YouTube RSS ${res.status}`);
+    const res = await fetchFeed(controller.signal);
 
     const parser = new XMLParser({ ignoreAttributes: true });
     const feed = parser.parse(await res.text());
