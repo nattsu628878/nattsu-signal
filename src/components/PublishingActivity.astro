@@ -320,6 +320,15 @@ const sources = [
   .contributions { padding: 12px 0; }
   .publishing-activity :global(.activity-calendar) { display: grid; grid-template-rows: repeat(7, 11px); grid-auto-columns: 11px; gap: 3px; padding: 4px; }
   .publishing-activity :global(.activity-cell) { position: relative; width: 11px; height: 11px; border: 1px solid var(--border-light); border-radius: 2px; padding: 0; cursor: pointer; transition: transform 180ms ease, box-shadow 180ms ease; }
+  /* The 3px grid gap is dead space no cell's pointerenter covers, so crossing it while moving
+     the mouse briefly hovers nothing. Split that gap between the two cells on either side of it
+     (an invisible hit-area extending 1.5px past the cell's own visible edge, exactly meeting the
+     neighbor's own extension at the midpoint) instead of shrinking the visible gap itself -- every
+     point inside the calendar's bounds now belongs to some cell's hover target. -2.5px, not
+     -1.5px: an absolutely-positioned pseudo-element is placed against its host's padding edge,
+     which sits 1px inside the host's own 1px border -- that border has to be added back in, or
+     the expansion falls 1px short of the cell's actual visible edge on every side. */
+  .publishing-activity :global(.activity-cell)::before { content: ''; position: absolute; inset: -2.5px; }
   .publishing-activity :global(.activity-cell:focus-visible), .publishing-activity :global(.activity-cell[aria-expanded="true"]) { z-index: 2; outline: 1px solid var(--accent); }
   .publishing-activity :global(.activity-dot) { position: absolute; width: 3px; height: 3px; border-radius: 50%; box-shadow: 0 0 0 0.4px var(--bg-panel); pointer-events: none; }
   .day-zoom { position: absolute; z-index: 9; width: 90px; height: 90px; padding: 3px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 3px; }
