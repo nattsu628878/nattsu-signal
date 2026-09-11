@@ -11,7 +11,7 @@ const sources = [
   { name: 'YouTube', color: '#e34848' },
   { name: 'note', color: '#e8be28' },
   { name: 'Qiita', color: '#8bcf39' },
-  { name: 'Timeline', color: '#428de0' },
+  { name: 'Bluesky', color: '#428de0' },
 ];
 ---
 
@@ -21,18 +21,17 @@ const sources = [
   </div>
   <div class="day-detail" hidden aria-label="この日の投稿"></div>
   <ul class="legend" aria-label="投稿の種類">
-    <li><span class="github-key" aria-hidden="true"></span>GitHub（背景の濃淡）</li>
+    <li><span class="github-key" aria-hidden="true"></span>GitHub</li>
     {sources.map(({ name, color }) => <li><span style={`background: ${color}`} aria-hidden="true"></span>{name}</li>)}
   </ul>
-  <p class="activity-status" aria-live="polite">Timelineを読み込み中…</p>
+  <p class="activity-status" aria-live="polite">Blueskyを読み込み中…</p>
   <p class="github-status" aria-live="polite">GitHubを読み込み中…</p>
-  <p class="coverage">過去1年・UTC日付。取得できた投稿のみ表示（YouTubeは最新15件、noteはRSS配信分、Qiitaは最新20件）。記事・動画はサイト更新時に反映。</p>
   <noscript>投稿カレンダーを表示するにはJavaScriptを有効にしてください。</noscript>
 </div>
 
 <script>
   type Activity = { date: string; source: string; title: string; url: string };
-  const sources = ['YouTube', 'note', 'Qiita', 'Timeline'];
+  const sources = ['YouTube', 'note', 'Qiita', 'Bluesky'];
   const colors = ['#e34848', '#e8be28', '#8bcf39', '#428de0'];
   const DAY = 86400000;
 
@@ -206,7 +205,7 @@ const sources = [
         for (const item of data.feed) {
           if (!item.reason && !seen.has(item.post.uri)) {
             seen.add(item.post.uri);
-            events.push({ date: item.post.record.createdAt, source: 'Timeline', title: item.post.record.text || 'Timeline投稿', url: `https://bsky.app/profile/nattsu628878.bsky.social/post/${item.post.uri.split('/').pop()}` });
+            events.push({ date: item.post.record.createdAt, source: 'Bluesky', title: item.post.record.text || 'Bluesky投稿', url: `https://bsky.app/profile/nattsu628878.bsky.social/post/${item.post.uri.split('/').pop()}` });
           }
         }
         const oldest = data.feed.at(-1);
@@ -217,7 +216,7 @@ const sources = [
       } while (cursor);
       status.textContent = 'マスにホバー／タップすると、その日の投稿を開けます。';
     } catch {
-      status.textContent = 'Timelineの取得に失敗しました。取得済みの投稿のみ表示しています。';
+      status.textContent = 'Blueskyの取得に失敗しました。取得済みの投稿のみ表示しています。';
     }
     draw();
     await githubTask;
@@ -231,7 +230,7 @@ const sources = [
   .legend li { display: flex; align-items: center; gap: 0.4rem; }
   .legend span { width: 0.5rem; height: 0.5rem; border-radius: 50%; }
   .legend .github-key { background: var(--grass-3); border-radius: 2px; }
-  .activity-status, .github-status, .coverage { font-size: 0.75rem; color: var(--text-muted); margin: 0.4rem 0; }
+  .activity-status, .github-status { font-size: 0.75rem; color: var(--text-muted); margin: 0.4rem 0; }
   .github-status:empty { display: none; }
   .publishing-activity { position: relative; }
   .contributions { padding: 12px 0; }
