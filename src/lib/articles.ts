@@ -1,3 +1,5 @@
+import { readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { XMLParser } from 'fast-xml-parser';
 
 // note/QiitaはどちらもCORSヘッダーを返さないため、Blueskyのようなクライアント側fetchは
@@ -20,6 +22,28 @@ const RETRY_DELAY_MS = 800;
 
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// astro buildは常にリポジトリルートから走るので、これで src/data/ を指せる
+// (import.meta.urlはビルド後のdist/内へ束ねられるため使えない — videos.tsと同じ理由)。
+function cachePath(name: 'note' | 'qiita') {
+  return join(process.cwd(), `src/data/${name}-cache.json`);
+}
+
+async function readCache(name: 'note' | 'qiita'): Promise<Article[]> {
+  try {
+    return JSON.parse(await readFile(cachePath(name), 'utf8'));
+  } catch {
+    return [];
+  }
+}
+
+async function writeCache(name: 'note' | 'qiita', articles: Article[]) {
+  try {
+    await writeFile(cachePath(name), `${JSON.stringify(articles, null, 2)}\n`, 'utf8');
+  } catch (e) {
+    console.warn(`[articles] ${name}キャッシュの書き込みに失敗しました:`, e);
+  }
 }
 
 // GitHub ActionsのランナーIPから叩くと、note/Qiita側が単発の5xxを返すことがある
@@ -57,12 +81,14 @@ async function fetchNote(): Promise<Article[]> {
   const items = feed?.rss?.channel?.item;
   if (!items) return []; // 記事0件のとき<item>自体が無い
 
-  return (Array.isArray(items) ? items : [items]).map((item: any) => ({
+  const articles = (Array.isArray(items) ? items : [items]).map((item: any) => ({
     title: String(item.title ?? '').trim(),
     url: String(item.link ?? ''),
     date: new Date(item.pubDate).toISOString(),
     source: 'note' as const,
   }));
+  await writeCache('note', articles);
+  return articles;
 }
 
 async function fetchQiita(): Promise<Article[]> {
@@ -74,7 +100,7 @@ async function fetchQiita(): Promise<Article[]> {
   if (!res.ok) throw new Error(`Qiita API ${res.status}`);
 
   const items: any[] = await res.json();
-  return items
+  const articles = items
     .filter((item) => !item.private)
     .map((item) => ({
       title: String(item.title ?? '').trim(),
@@ -82,21 +108,25 @@ async function fetchQiita(): Promise<Article[]> {
       date: new Date(item.created_at).toISOString(),
       source: 'Qiita' as const,
     }));
+  await writeCache('qiita', articles);
+  return articles;
 }
 
 /**
  * note・Qiitaの投稿を1つの新しい順リストにまとめる。
- * 片方が落ちてもビルド全体は止めず、取れた分だけ返す。
+ * 片方が落ちてもビルド全体は止めず、取れた分だけ返す。取得自体に失敗したソースは、
+ * 空にはせず直近に成功した取得結果（コミット済みのキャッシュ）を代わりに使う。
  */
 export async function getArticles(): Promise<Article[]> {
-  const results = await Promise.allSettled([fetchNote(), fetchQiita()]);
+  const [note, qiita] = await Promise.allSettled([fetchNote(), fetchQiita()]);
 
   const articles: Article[] = [];
-  for (const result of results) {
+  for (const [name, result] of [['note', note], ['qiita', qiita]] as const) {
     if (result.status === 'fulfilled') {
       articles.push(...result.value);
     } else {
-      console.warn('[articles] 取得に失敗したソースがあります:', result.reason);
+      console.warn(`[articles] ${name}の取得に失敗しました。直近のキャッシュを代わりに使います:`, result.reason);
+      articles.push(...(await readCache(name)));
     }
   }
 
