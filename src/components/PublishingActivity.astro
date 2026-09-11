@@ -44,12 +44,15 @@ const sources = [
     const detail = root.querySelector<HTMLElement>('.day-detail')!;
     const zoom = root.querySelector<HTMLElement>('.day-zoom')!;
     let activeCell: HTMLButtonElement | undefined;
+    let resetLens = () => {};
+    let suppressFocus = false;
     let closeTimer: ReturnType<typeof setTimeout> | undefined;
     const cancelClose = () => clearTimeout(closeTimer);
     const close = () => {
       cancelClose();
       detail.hidden = true;
       zoom.hidden = true;
+      resetLens();
       activeCell?.setAttribute('aria-expanded', 'false');
       activeCell = undefined;
     };
@@ -70,7 +73,9 @@ const sources = [
       if (event.key === 'Escape') {
         const cell = activeCell;
         close();
+        suppressFocus = true;
         cell?.focus();
+        suppressFocus = false;
         close();
       }
     });
@@ -106,8 +111,58 @@ const sources = [
       const width = Math.ceil(((end - start) / DAY + 1 + offset) / 7) * 14;
       const calendar = document.createElement('div');
       calendar.className = 'activity-calendar';
-      calendar.style.width = `${width}px`;
+      calendar.style.width = `${width + 8}px`;
       calendar.setAttribute('aria-label', `${new Date(start).toISOString().slice(0, 10)}〜${today}のGitHub活動と投稿・更新履歴`);
+      // Allocate more space near the focus while keeping both ends fixed.
+      // Normalizing the track widths compresses distant cells instead of overflowing.
+      const lens = (focusColumn: number, focusRow: number) => {
+        const bounds = root.getBoundingClientRect();
+        const calendarBounds = calendar.getBoundingClientRect();
+        const viewport = grid.getBoundingClientRect();
+        const firstColumn = Math.max(0, Math.min(focusColumn, Math.floor(grid.scrollLeft / 14)));
+        const lastColumn = Math.min(Math.ceil(width / 14) - 1, Math.max(focusColumn, Math.floor((grid.scrollLeft + grid.clientWidth - 5) / 14)));
+        const tracks = (count: number, focus: number, extent: number) => {
+          const weights = Array.from({ length: count }, (_, i) => 0.45 + 9 * Math.exp(-Math.abs(i - focus) * 1.35));
+          const total = weights.reduce((a, b) => a + b, 0);
+          let edge = 0;
+          return weights.map(weight => {
+            const size = weight / total * extent;
+            const track = { center: edge + size / 2, size };
+            edge += size;
+            return track;
+          });
+        };
+        const left = Math.max(calendarBounds.left + 4, viewport.left + 4);
+        const extent = Math.min(width - 8 - firstColumn * 14, grid.clientWidth - 8);
+        const columns = tracks(lastColumn - firstColumn + 1, focusColumn - firstColumn, extent);
+        const rows = tracks(7, focusRow, 98);
+        let selected = { left: 0, top: 0, size: 11 };
+        calendar.querySelectorAll<HTMLButtonElement>('.activity-cell').forEach(button => {
+          const column = Number(button.style.gridColumn) - 1;
+          const row = Number(button.style.gridRow) - 1;
+          if (column < firstColumn || column > lastColumn) {
+            button.style.visibility = 'hidden';
+            return;
+          }
+          const x = columns[column - firstColumn];
+          const y = rows[row];
+          const size = Math.max(1, Math.min(x.size, y.size) - 2);
+          const centerX = left + x.center;
+          const centerY = calendarBounds.top + 4 + y.center;
+          const originalX = calendarBounds.left + 4 + column * 14 + 5.5;
+          const originalY = calendarBounds.top + 4 + row * 14 + 5.5;
+          button.style.visibility = '';
+          button.style.transform = `translate(${centerX - originalX}px, ${centerY - originalY}px) scale(${size / 11})`;
+          if (column === focusColumn && row === focusRow) selected = { left: centerX - size / 2 - bounds.left, top: centerY - size / 2 - bounds.top, size };
+        });
+        return selected;
+      };
+      resetLens = () => {
+        calendar.querySelectorAll<HTMLButtonElement>('.activity-cell').forEach(button => {
+          button.style.transform = '';
+          button.style.visibility = '';
+        });
+      };
       for (let timestamp = start, index = offset; timestamp <= end; timestamp += DAY, index++) {
         const date = new Date(timestamp).toISOString().slice(0, 10);
         const values = counts.get(date) ?? [0, 0, 0, 0];
@@ -175,14 +230,21 @@ const sources = [
             zoom.append(quadrant);
           });
           zoom.hidden = false;
-          const bounds = root.getBoundingClientRect();
-          const rect = cell.getBoundingClientRect();
-          zoom.style.left = `${Math.max(0, Math.min(rect.left - bounds.left - 39, bounds.width - zoom.offsetWidth))}px`;
-          zoom.style.top = `${rect.top - bounds.top - 39}px`;
+          const selected = lens(Math.floor(index / 7), index % 7);
+          zoom.style.left = `${selected.left}px`;
+          zoom.style.top = `${selected.top}px`;
+          zoom.style.width = `${selected.size}px`;
+          zoom.style.height = `${selected.size}px`;
         };
         cell.addEventListener('pointerenter', (event) => { if (event.pointerType !== 'touch') open(); });
         cell.addEventListener('pointerleave', scheduleClose);
-        cell.addEventListener('focus', open);
+        cell.addEventListener('focus', () => {
+          if (suppressFocus) return;
+          cell.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+          setTimeout(() => {
+            if (document.activeElement === cell) open();
+          }, 80);
+        });
         cell.addEventListener('click', open);
         cell.addEventListener('keydown', (event) => {
           if (event.key === 'Tab' && !event.shiftKey && zoom.querySelector('a')) {
@@ -257,13 +319,13 @@ const sources = [
   .contributions { padding: 12px 0; }
   .publishing-activity :global(.activity-calendar) { display: grid; grid-template-rows: repeat(7, 11px); grid-auto-columns: 11px; gap: 3px; padding: 4px; }
   .publishing-activity :global(.activity-cell) { position: relative; width: 11px; height: 11px; border: 1px solid var(--border-light); border-radius: 2px; padding: 0; cursor: pointer; transition: transform 180ms ease, box-shadow 180ms ease; }
-  .publishing-activity :global(.activity-cell:hover), .publishing-activity :global(.activity-cell:focus-visible), .publishing-activity :global(.activity-cell[aria-expanded="true"]) { transform: scale(1.85); z-index: 2; box-shadow: 0 2px 7px #0003; outline: 1px solid var(--accent); }
+  .publishing-activity :global(.activity-cell:focus-visible), .publishing-activity :global(.activity-cell[aria-expanded="true"]) { z-index: 2; outline: 1px solid var(--accent); }
   .publishing-activity :global(.activity-dot) { position: absolute; width: 3px; height: 3px; border-radius: 50%; box-shadow: 0 0 0 0.4px var(--bg-panel); pointer-events: none; }
-  .day-zoom { position: absolute; z-index: 9; width: 90px; min-height: 90px; padding: 7px; display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, minmax(32px, auto)); gap: 6px; border: 1px solid var(--accent); border-radius: 6px; box-shadow: 0 5px 20px #0003; }
+  .day-zoom { position: absolute; z-index: 9; width: 90px; height: 90px; padding: 3px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 3px; border: 1px solid var(--accent); border-radius: 3px; }
   .day-zoom[hidden] { display: none; }
   .day-zoom:not([hidden]) { animation: zoom-in 200ms ease-out; }
-  .day-zoom :global(.zoom-quadrant) { display: grid; grid-template-columns: repeat(auto-fit, minmax(12px, 1fr)); gap: 3px; }
-  .day-zoom :global(.zoom-post) { display: block; min-height: 14px; border-radius: 2px; box-shadow: 0 0 0 1px #ffffff80; transition: transform 140ms ease; }
+  .day-zoom :global(.zoom-quadrant) { display: grid; grid-template-columns: repeat(auto-fit, minmax(5px, 1fr)); gap: 2px; min-height: 0; }
+  .day-zoom :global(.zoom-post) { display: block; min-height: 0; border-radius: 2px; box-shadow: 0 0 0 1px #ffffff80; transition: transform 140ms ease; }
   .day-zoom :global(.zoom-post:hover), .day-zoom :global(.zoom-post:focus-visible) { transform: scale(1.12); outline: 2px solid var(--text-primary); outline-offset: 2px; z-index: 1; }
   @keyframes zoom-in { from { opacity: 0; transform: scale(0.35); } to { opacity: 1; transform: scale(1); } }
   .day-detail { position: absolute; z-index: 10; width: min(320px, 100%); max-height: 280px; overflow: auto; padding: 0.8rem; border: 1px solid var(--border-light); border-radius: 8px; background: var(--bg-panel); box-shadow: 0 8px 28px #0002; font-size: 0.8rem; }
