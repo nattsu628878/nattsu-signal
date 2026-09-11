@@ -19,7 +19,8 @@ const sources = [
   <div class="contributions" tabindex="0" aria-label="GitHub活動と投稿・更新カレンダー（横スクロール可）">
     <p class="status">読み込み中…</p>
   </div>
-  <div class="day-detail" hidden aria-label="この日の投稿"></div>
+  <div class="day-zoom" hidden aria-label="この日の投稿"></div>
+  <div class="day-detail" hidden aria-label="投稿リンク"></div>
   <ul class="legend" aria-label="投稿の種類">
     <li><span class="github-key" aria-hidden="true"></span>GitHub</li>
     {sources.map(({ name, color }) => <li><span style={`background: ${color}`} aria-hidden="true"></span>{name}</li>)}
@@ -41,23 +42,27 @@ const sources = [
     const status = root.querySelector<HTMLElement>('.activity-status')!;
     const githubStatus = root.querySelector<HTMLElement>('.github-status')!;
     const detail = root.querySelector<HTMLElement>('.day-detail')!;
+    const zoom = root.querySelector<HTMLElement>('.day-zoom')!;
     let activeCell: HTMLButtonElement | undefined;
     let closeTimer: ReturnType<typeof setTimeout> | undefined;
     const cancelClose = () => clearTimeout(closeTimer);
     const close = () => {
       cancelClose();
       detail.hidden = true;
+      zoom.hidden = true;
       activeCell?.setAttribute('aria-expanded', 'false');
       activeCell = undefined;
     };
     const scheduleClose = () => {
       cancelClose();
       closeTimer = setTimeout(() => {
-        if (!detail.matches(':hover') && !detail.contains(document.activeElement) && document.activeElement !== activeCell) close();
+        if (!zoom.matches(':hover') && !zoom.contains(document.activeElement) && !detail.matches(':hover') && !detail.contains(document.activeElement) && document.activeElement !== activeCell) close();
       }, 220);
     };
     detail.addEventListener('pointerenter', cancelClose);
     detail.addEventListener('pointerleave', scheduleClose);
+    zoom.addEventListener('pointerenter', cancelClose);
+    zoom.addEventListener('pointerleave', scheduleClose);
     root.addEventListener('focusout', () => setTimeout(() => {
       if (!root.contains(document.activeElement)) close();
     }, 0));
@@ -128,45 +133,61 @@ const sources = [
         });
         const open = () => {
           cancelClose();
+          if (activeCell === cell && !zoom.hidden) return;
           activeCell?.setAttribute('aria-expanded', 'false');
           activeCell = cell;
           cell.setAttribute('aria-expanded', 'true');
-          const heading = document.createElement('strong');
-          heading.textContent = date;
-          const list = document.createElement('ul');
-          const links = [...(posts.get(date) ?? [])];
-          links.unshift({ date, source: 'GitHub', title: `GitHub ${contribution ? `${contribution.count} contributions` : 'で活動を見る'}`, url: `https://github.com/nattsu628878?tab=overview&from=${date}&to=${date}` });
-          for (const post of links) {
-            if (!/^https:\/\//.test(post.url)) continue;
-            const li = document.createElement('li');
-            const link = document.createElement('a');
-            link.href = post.url;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-            const marker = document.createElement('span');
-            marker.className = 'post-marker';
-            marker.style.background = colors[sources.indexOf(post.source)] ?? 'var(--grass-3)';
-            const text = document.createElement('span');
-            text.textContent = `${post.source === 'GitHub' ? '' : `${post.source} · `}${post.title || '投稿を見る'} ↗`;
-            link.append(marker, text);
-            li.append(link);
-            list.append(li);
-          }
-          detail.replaceChildren(heading, list);
-          detail.hidden = false;
+          detail.hidden = true;
+          zoom.replaceChildren();
+          zoom.style.background = `var(--grass-${contribution?.level ?? 0})`;
+          zoom.setAttribute('aria-label', label);
+          sources.forEach((source, i) => {
+            const quadrant = document.createElement('div');
+            quadrant.className = 'zoom-quadrant';
+            for (const post of (posts.get(date) ?? []).filter(post => post.source === source && /^https:\/\//.test(post.url))) {
+              const link = document.createElement('a');
+              link.className = 'zoom-post';
+              link.href = post.url;
+              link.target = '_blank';
+              link.rel = 'noopener noreferrer';
+              link.style.background = colors[i];
+              link.setAttribute('aria-label', `${source} · ${post.title || '投稿を見る'}`);
+              const showLink = () => {
+                cancelClose();
+                const heading = document.createElement('strong');
+                heading.textContent = `${date} · ${source}`;
+                const article = document.createElement('a');
+                article.href = post.url;
+                article.target = '_blank';
+                article.rel = 'noopener noreferrer';
+                article.textContent = `${post.title || '投稿を見る'} ↗`;
+                detail.replaceChildren(heading, article);
+                detail.hidden = false;
+                const bounds = root.getBoundingClientRect();
+                const rect = zoom.getBoundingClientRect();
+                detail.style.left = `${Math.max(0, Math.min(rect.left - bounds.left, bounds.width - detail.offsetWidth))}px`;
+                detail.style.top = `${rect.bottom - bounds.top + 6}px`;
+              };
+              link.addEventListener('pointerenter', showLink);
+              link.addEventListener('focus', showLink);
+              quadrant.append(link);
+            }
+            zoom.append(quadrant);
+          });
+          zoom.hidden = false;
           const bounds = root.getBoundingClientRect();
           const rect = cell.getBoundingClientRect();
-          detail.style.left = `${Math.max(0, Math.min(rect.left - bounds.left - 12, bounds.width - detail.offsetWidth))}px`;
-          detail.style.top = `${rect.bottom - bounds.top + 8}px`;
+          zoom.style.left = `${Math.max(0, Math.min(rect.left - bounds.left - 39, bounds.width - zoom.offsetWidth))}px`;
+          zoom.style.top = `${rect.top - bounds.top - 39}px`;
         };
         cell.addEventListener('pointerenter', (event) => { if (event.pointerType !== 'touch') open(); });
         cell.addEventListener('pointerleave', scheduleClose);
         cell.addEventListener('focus', open);
         cell.addEventListener('click', open);
         cell.addEventListener('keydown', (event) => {
-          if (event.key === 'Tab' && !event.shiftKey && !detail.hidden) {
+          if (event.key === 'Tab' && !event.shiftKey && zoom.querySelector('a')) {
             event.preventDefault();
-            detail.querySelector<HTMLAnchorElement>('a')?.focus();
+            zoom.querySelector<HTMLAnchorElement>('a')?.focus();
           }
           const step = { ArrowUp: -1, ArrowDown: 1, ArrowLeft: -7, ArrowRight: 7 }[event.key];
           if (step !== undefined) {
@@ -214,7 +235,7 @@ const sources = [
         if (!next || next === cursor || !oldestDate || Date.parse(oldestDate) < start) break;
         cursor = next;
       } while (cursor);
-      status.textContent = 'マスにホバー／タップすると、その日の投稿を開けます。';
+      status.textContent = 'マスを拡大し、色付きの四角にホバーで投稿名を表示、クリックで開きます。';
     } catch {
       status.textContent = 'Blueskyの取得に失敗しました。取得済みの投稿のみ表示しています。';
     }
@@ -238,6 +259,13 @@ const sources = [
   .publishing-activity :global(.activity-cell) { position: relative; width: 11px; height: 11px; border: 1px solid var(--border-light); border-radius: 2px; padding: 0; cursor: pointer; transition: transform 180ms ease, box-shadow 180ms ease; }
   .publishing-activity :global(.activity-cell:hover), .publishing-activity :global(.activity-cell:focus-visible), .publishing-activity :global(.activity-cell[aria-expanded="true"]) { transform: scale(1.85); z-index: 2; box-shadow: 0 2px 7px #0003; outline: 1px solid var(--accent); }
   .publishing-activity :global(.activity-dot) { position: absolute; width: 3px; height: 3px; border-radius: 50%; box-shadow: 0 0 0 0.4px var(--bg-panel); pointer-events: none; }
+  .day-zoom { position: absolute; z-index: 9; width: 90px; min-height: 90px; padding: 7px; display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, minmax(32px, auto)); gap: 6px; border: 1px solid var(--accent); border-radius: 6px; box-shadow: 0 5px 20px #0003; }
+  .day-zoom[hidden] { display: none; }
+  .day-zoom:not([hidden]) { animation: zoom-in 200ms ease-out; }
+  .day-zoom :global(.zoom-quadrant) { display: grid; grid-template-columns: repeat(auto-fit, minmax(12px, 1fr)); gap: 3px; }
+  .day-zoom :global(.zoom-post) { display: block; min-height: 14px; border-radius: 2px; box-shadow: 0 0 0 1px #ffffff80; transition: transform 140ms ease; }
+  .day-zoom :global(.zoom-post:hover), .day-zoom :global(.zoom-post:focus-visible) { transform: scale(1.12); outline: 2px solid var(--text-primary); outline-offset: 2px; z-index: 1; }
+  @keyframes zoom-in { from { opacity: 0; transform: scale(0.35); } to { opacity: 1; transform: scale(1); } }
   .day-detail { position: absolute; z-index: 10; width: min(320px, 100%); max-height: 280px; overflow: auto; padding: 0.8rem; border: 1px solid var(--border-light); border-radius: 8px; background: var(--bg-panel); box-shadow: 0 8px 28px #0002; font-size: 0.8rem; }
   .day-detail:not([hidden]) { animation: appear 160ms ease-out; }
   .day-detail :global(ul) { list-style: none; padding: 0; margin: 0.5rem 0 0; }
@@ -245,5 +273,5 @@ const sources = [
   .day-detail :global(a:hover), .day-detail :global(a:focus-visible) { background: var(--accent-bg); outline: 1px solid var(--accent); }
   .day-detail :global(.post-marker) { flex: 0 0 8px; height: 8px; border-radius: 2px; }
   @keyframes appear { from { opacity: 0; transform: translateY(-3px) scale(0.98); } to { opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) { .publishing-activity :global(.activity-cell) { transition: none; } .day-detail:not([hidden]) { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .publishing-activity :global(.activity-cell), .day-zoom :global(.zoom-post) { transition: none; } .day-detail:not([hidden]), .day-zoom:not([hidden]) { animation: none; } }
 </style>
