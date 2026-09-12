@@ -3,9 +3,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import OpusCard from '../../components/OpusCard.astro';
 import { getCollection } from 'astro:content';
 
-const items = (await getCollection('opus')).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
-);
+// priority: 0=上位（作品・サークル成果）、1=既定、2=下位（個人的な制作基盤ツール）。
+// 同じpriority内は日付の新しい順。
+const items = (await getCollection('opus')).sort((a, b) => {
+  const priorityDiff = (a.data.priority ?? 1) - (b.data.priority ?? 1);
+  if (priorityDiff !== 0) return priorityDiff;
+  return b.data.date.valueOf() - a.data.date.valueOf();
+});
 ---
 
 <BaseLayout title="Opus" active="opus">

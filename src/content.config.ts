@@ -10,6 +10,7 @@ const opus = defineCollection({
     link: z.string().url().optional(),
     image: z.string(),
     date: z.coerce.date(),
+    priority: z.number().int().default(1),
     featured: z.boolean().default(false),
     org: z.enum(['nattsu', 'kzgrm']).default('nattsu'),
   }),
