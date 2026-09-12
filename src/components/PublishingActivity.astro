@@ -16,16 +16,16 @@ const sources = [
 ---
 
 <div class="publishing-activity" data-events={JSON.stringify(events)}>
-  <div class="contributions" tabindex="0" aria-label="GitHub活動と投稿・更新カレンダー（横スクロール可）">
-    <p class="status">読み込み中…</p>
+  <div class="contributions" tabindex="0" aria-label="GitHub activity and post/update calendar (scrollable)">
+    <p class="status">Loading…</p>
   </div>
-  <ul class="legend" aria-label="投稿の種類">
+  <ul class="legend" aria-label="Post types">
     <li><span class="github-key" aria-hidden="true"></span>GitHub</li>
     {sources.map(({ name, color }) => <li><span style={`background: ${color}`} aria-hidden="true"></span>{name}</li>)}
   </ul>
-  <p class="activity-status" aria-live="polite">Blueskyを読み込み中…</p>
-  <p class="github-status" aria-live="polite">GitHubを読み込み中…</p>
-  <noscript>投稿カレンダーを表示するにはJavaScriptを有効にしてください。</noscript>
+  <p class="activity-status" aria-live="polite">Loading Bluesky…</p>
+  <p class="github-status" aria-live="polite">Loading GitHub…</p>
+  <noscript>Enable JavaScript to see the post calendar.</noscript>
 </div>
 
 <script>
@@ -67,7 +67,7 @@ const sources = [
       calendar.className = 'activity-calendar';
       calendar.style.width = `${width + 8}px`;
       calendar.setAttribute('role', 'img');
-      calendar.setAttribute('aria-label', `${new Date(start).toISOString().slice(0, 10)}〜${today}のGitHub活動と投稿・更新履歴`);
+      calendar.setAttribute('aria-label', `GitHub activity and post/update history from ${new Date(start).toISOString().slice(0, 10)} to ${today}`);
       for (let timestamp = start, index = offset; timestamp <= end; timestamp += DAY, index++) {
         const date = new Date(timestamp).toISOString().slice(0, 10);
         const values = counts.get(date) ?? [0, 0, 0, 0];
@@ -100,7 +100,7 @@ const sources = [
         for (const day of data.contributions) github.set(day.date, { count: day.count, level: Math.max(0, Math.min(4, day.level)) });
         githubStatus.textContent = '';
       } catch {
-        githubStatus.textContent = 'GitHubの取得に失敗しました。投稿・更新の点のみ表示しています。';
+        githubStatus.textContent = 'Failed to load GitHub. Showing post/update dots only.';
       }
       draw();
     })();
@@ -125,9 +125,9 @@ const sources = [
         if (!next || next === cursor || !oldestDate || Date.parse(oldestDate) < start) break;
         cursor = next;
       } while (cursor);
-      status.textContent = '色の濃さでGitHubの活動、点の色で投稿・更新の有無を示します。';
+      status.textContent = 'Shade shows GitHub activity, dots show posts/updates.';
     } catch {
-      status.textContent = 'Blueskyの取得に失敗しました。取得済みの投稿のみ表示しています。';
+      status.textContent = 'Failed to load Bluesky. Showing already-fetched posts only.';
     }
     draw();
     await githubTask;

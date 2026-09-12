@@ -14,7 +14,7 @@ const formatDate = (iso: string) => {
   <div class="container">
     <h1 class="section-title">Article</h1>
     <p class="lead">
-      note・Qiitaへの投稿。<a
+      <a
         href="https://note.com/nattsu_628878"
         target="_blank"
         rel="noopener noreferrer">note ↗</a
@@ -23,7 +23,7 @@ const formatDate = (iso: string) => {
 
     {
       articles.length === 0 ? (
-        <p class="empty">まだ投稿がありません。</p>
+        <p class="empty">No posts yet.</p>
       ) : (
         <ul class="article-list">
           {articles.map((article) => (

@@ -20,63 +20,63 @@ interface Group {
 
 const groups: Group[] = [
   {
-    label: '音楽・音響',
+    label: 'Music & Audio',
     items: [
       {
         name: 'modulation-atlas',
-        desc: '変調方式(AM/FM/PSK/QAM等13種)を実測FFT・理論式との対応付きで学ぶ図鑑',
+        desc: 'A field guide to modulation schemes (AM/FM/PSK/QAM and more) with measured FFTs alongside theory',
         href: 'https://nattsu628878.github.io/modulation-atlas/',
       },
       {
         name: 'audio-dsp-workbook',
-        desc: '音声信号処理入門、全10章構成',
+        desc: 'An intro to audio DSP in 10 chapters',
         href: 'https://nattsu628878.github.io/audio-dsp-workbook/',
       },
       {
         name: 'logic-fx-guide',
-        desc: 'Logic Pro内蔵エフェクトの解説サイト',
+        desc: "A guide to Logic Pro's built-in effects",
         href: 'https://nattsu628878.github.io/logic-fx-guide/',
       },
       {
         name: 'music-genre-map',
-        desc: '音楽ジャンルの歴史・系統をネットワーク図とタイムラインで辿るガイド',
+        desc: 'A guide tracing the history and lineage of music genres via network graphs and timelines',
         href: 'https://nattsu628878.github.io/music-genre-map/',
       },
     ],
   },
   {
-    label: '映像・色',
+    label: 'Video & Color',
     items: [
       {
         name: 'davinci-resolve-guide',
-        desc: 'DaVinci Resolve(動画編集)の学習ガイド',
+        desc: 'A learning guide for DaVinci Resolve (video editing)',
         href: 'https://nattsu628878.github.io/davinci-resolve-guide/',
       },
       {
         name: 'lut-visualizer',
-        desc: '3D LUT(色変換)の可視化ツール。LUT基礎知識ガイド付き',
+        desc: 'A visualizer for 3D LUTs (color transforms), with a LUT basics guide',
         href: 'https://nattsu628878.github.io/lut-visualizer/',
       },
     ],
   },
   {
-    label: '技術・創作',
+    label: 'Tech & Creation',
     items: [
       {
         name: 'technology-universe',
-        desc: 'コンピュータから広がる、技術と創作の探索地図',
+        desc: 'An exploration map of technology and creation, branching out from the computer',
         href: 'https://nattsu628878.github.io/technology-universe/',
       },
     ],
   },
   {
-    label: 'プログラミング',
+    label: 'Programming',
     items: [
       {
         name: 'rust-syntax-tour',
-        desc: 'Rust構文を巡る学習リポジトリ',
+        desc: 'A learning repo touring Rust syntax',
         href: 'https://github.com/nattsu628878/rust-syntax-tour',
-        note: 'private repo・Pages未公開',
+        note: 'private repo, no Pages',
       },
     ],
   },
@@ -85,8 +85,8 @@ const groups: Group[] = [
 
 <BaseLayout title="Study" active="study" noindex>
   <div class="container">
-    <h1 class="section-title">学習リンク</h1>
-    <p class="study-lede">自分の学習用に作ったサイト・リポジトリの一覧。ナビゲーションには載せていない個人用ページ。</p>
+    <h1 class="section-title">Study</h1>
+    <p class="study-lede">A list of sites and repos I built for my own learning. Not linked in the site nav.</p>
 
     {groups.map((group) => (
       <div class="study-group">

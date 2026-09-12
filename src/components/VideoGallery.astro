@@ -9,7 +9,7 @@ const { videos } = Astro.props;
 
 {
   videos.length === 0 ? (
-    <p class="empty">動画を読み込めませんでした。</p>
+    <p class="empty">Couldn't load videos.</p>
   ) : (
     <div class="video-grid">
       {videos.map((video) => (
