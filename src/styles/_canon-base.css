@@ -133,8 +133,15 @@ a {
 }
 
 @media (max-width: 640px) {
+  .site-header .container {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
   .nav-toggle {
     display: flex;
+    width: 28px;
+    height: 28px;
   }
 
   .site-header-row {
