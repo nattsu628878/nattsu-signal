@@ -133,15 +133,15 @@ a {
 }
 
 @media (max-width: 640px) {
-  .site-header .container {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
-
   .nav-toggle {
     display: flex;
-    width: 28px;
-    height: 28px;
+    /* .site-header .container の padding(.75rem)はモバイルでも縮小しない
+       (nattsu-docsのトグル無しヘッダーと揃える、2026-09-21)。その代わり
+       トグル自体を.site-titleの行の高さ(line-height 1.6 × 1rem = 25.6px)
+       以下に収め、ヘッダーの実測高さがトグルではなくタイトル行で決まる
+       ようにする ── これでpaddingを特別扱いしなくても自然にコンパクトになる。 */
+    width: 24px;
+    height: 24px;
   }
 
   .site-header-row {
@@ -160,13 +160,27 @@ a {
     grid-template-rows: 1fr;
   }
 
+  .site-header .container {
+    /* デスクトップの gap: 1rem は横並びの子要素間の間隔用。モバイルでは
+       .site-header-row が flex-wrap するため、閉じたメニュー行との間の
+       "縦方向" gap として常に加算されてしまい、閉じていてもヘッダーが
+       余分に高くなる原因になっていた(2026-09-21、nattsu-docsの
+       トグル無しヘッダーとの比較で発覚)。0にし、開いたときの間隔は
+       下の.site-nav-collapse.open側で個別に持たせる。 */
+    gap: 0;
+  }
+
   .site-nav-collapse > .site-nav {
     overflow: hidden;
     min-height: 0;
     flex-direction: column;
     align-items: stretch;
     gap: 0;
-    padding-top: 0.25rem;
+    padding-top: 0;
+  }
+
+  .site-nav-collapse.open > .site-nav {
+    padding-top: 0.75rem;
   }
 
   .site-nav-collapse .site-nav li {
