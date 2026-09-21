@@ -7,7 +7,7 @@ const { handle, limit = 30 } = Astro.props;
 ---
 
 <div class="bsky-timeline" data-handle={handle} data-limit={limit}>
-  <p class="status">Loading…</p>
+  <p class="status-text">Loading…</p>
 </div>
 
 <script>
@@ -57,7 +57,7 @@ const { handle, limit = 30 } = Astro.props;
       const posts = data.feed.filter((item) => !item.reason).map((item) => item.post);
 
       if (posts.length === 0) {
-        root.innerHTML = `<p class="status">No posts yet. <a href="${profileUrl}" target="_blank" rel="noopener noreferrer">View on Bluesky ↗</a></p>`;
+        root.innerHTML = `<p class="status-text">No posts yet. <a href="${profileUrl}" target="_blank" rel="noopener noreferrer">View on Bluesky ↗</a></p>`;
         return;
       }
 
@@ -81,7 +81,7 @@ const { handle, limit = 30 } = Astro.props;
         })
         .join('');
     } catch {
-      root.innerHTML = `<p class="status">Failed to load Bluesky. <a href="${profileUrl}" target="_blank" rel="noopener noreferrer">View on Bluesky ↗</a></p>`;
+      root.innerHTML = `<p class="status-text">Failed to load Bluesky. <a href="${profileUrl}" target="_blank" rel="noopener noreferrer">View on Bluesky ↗</a></p>`;
     }
   }
 

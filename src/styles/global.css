@@ -1,3 +1,12 @@
+/* 層2(構造パターンの語彙)は2026-09-20よりnattsu-guides/design-system/base.cssへ統合。
+ * header/nav/section-title/opus-card/section-header-row/see-all等はそちらの正本を
+ * canon/sync.mjsが生成コピーしたこのファイルから読む。手で編集しない。
+ * (旧ローカル実装はbase.cssとわずかに差があった — 例: モバイルnav-toggleの開閉に
+ * アニメーションが無かった。統合により base.css 側のなめらかな開閉に揃った。)
+ * @import はCSS仕様上ファイル先頭(@charset以外の宣言より前)に置く必要があるため、
+ * トークン定義より前に置いている(var()の解決はカスケード時なので定義順に依存しない)。 */
+@import url('./_canon-base.css');
+
 /* 旧: dev/tools/web-tools/tpl/tool-box-tpl.css のトークンを継承していたが、
    canon:start〜canon:end は nattsu-design-studio/canon/tokens.css の複製に一本化。
    canon/sync.mjs が上書きするので、この範囲を手で編集しない。値を変えたい場合は
@@ -57,318 +66,7 @@
   --kzgrm-accent-hover: #454e8a;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html {
-  scrollbar-gutter: stable;
-}
-
-body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: var(--font-body);
-  line-height: 1.6;
-}
-
-h1, h2, h3 {
-  font-family: var(--font-mono);
-}
-
-a {
-  color: inherit;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem 1rem;
-}
-
-/* ── ヘッダー / ナビ ───────────────────── */
-
-.site-header {
-  background: var(--bg-secondary);
-  border-bottom: 2px solid var(--accent);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.site-header .container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-}
-
-.site-title {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--accent);
-  letter-spacing: 0.02em;
-  text-decoration: none;
-}
-
-.site-nav {
-  display: flex;
-  gap: 1.25rem;
-  list-style: none;
-  flex-wrap: wrap;
-}
-
-.site-nav a {
-  font-family: var(--font-mono);
-  text-decoration: none;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  font-weight: 500;
-  padding: 0.25rem 0;
-  border-bottom: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
-}
-
-.site-nav a:hover,
-.site-nav a[aria-current="page"] {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
-/* ── モバイル: ハンバーガーメニュー ─────────── */
-
-.nav-toggle {
-  display: none;
-  flex-direction: column;
-  justify-content: center;
-  gap: 5px;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.nav-toggle .bar {
-  width: 100%;
-  height: 2px;
-  background: var(--accent);
-  border-radius: 1px;
-}
-
-.site-nav-collapse {
-  display: contents;
-}
-
-@media (max-width: 640px) {
-  .site-header .container {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
-
-  .nav-toggle {
-    display: flex;
-    width: 28px;
-    height: 28px;
-  }
-
-  .site-header-row {
-    flex-wrap: wrap;
-  }
-
-  .site-nav-collapse {
-    display: none;
-    width: 100%;
-    order: 3;
-  }
-
-  .site-nav-collapse.open {
-    display: block;
-  }
-
-  .site-nav-collapse .site-nav {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-    padding-top: 0.25rem;
-  }
-
-  .site-nav-collapse .site-nav li {
-    width: 100%;
-  }
-
-  .site-nav-collapse .site-nav a {
-    display: block;
-    padding: 0.7rem 0;
-    border-bottom: 1px solid var(--border-light);
-  }
-}
-
-/* ── opusカードグリッド（Bento見送り、均一グリッド） ─── */
-
-.opus-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.25rem;
-}
-
-.opus-card {
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-light);
-  border-radius: 10px;
-  overflow: hidden;
-  text-decoration: none;
-  color: inherit;
-  transition: border-color 0.15s, transform 0.15s;
-}
-
-.opus-card:is(a):hover {
-  border-color: var(--accent);
-  transform: translateY(-2px);
-}
-
-.opus-card .thumb {
-  aspect-ratio: 16 / 10;
-  background: var(--bg-tertiary);
-  overflow: hidden;
-}
-
-.opus-card .thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.opus-card .body {
-  padding: 0.9rem 1rem 1.1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  flex: 1;
-}
-
-.opus-card .tags {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.opus-card .category {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-
-.opus-card .org-badge {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--kzgrm-accent);
-  border: 1px solid var(--kzgrm-accent);
-  border-radius: 4px;
-  padding: 0.05rem 0.35rem;
-}
-
-/* kzgrm成果物: 自分の作品と区別できる別配色（kzgrm-galleryの実際の配色から採取） */
-.opus-card--kzgrm {
-  border-color: var(--kzgrm-accent);
-}
-
-.opus-card--kzgrm:is(a):hover {
-  border-color: var(--kzgrm-accent-hover);
-}
-
-.opus-card--kzgrm .category {
-  color: var(--kzgrm-accent);
-}
-
-.opus-card--kzgrm .link-out {
-  color: var(--kzgrm-accent);
-}
-
-.opus-card h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.opus-card p {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  flex: 1;
-}
-
-.opus-card .link-out {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: var(--accent);
-  font-weight: 500;
-}
-
-/* ── セクション見出し ─────────────────── */
-
-.section-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  border-bottom: 2px solid var(--accent);
-  padding-bottom: 0.5rem;
-  margin-bottom: 1.25rem;
-}
-
-.section-header-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.25rem;
-  border-bottom: 2px solid var(--accent);
-  padding-bottom: 0.5rem;
-}
-
-.section-header-row .section-title {
-  border: none;
-  padding: 0;
-  margin: 0;
-}
-
-.subsection-title {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.4rem;
-  margin-bottom: 1rem;
-}
-
-.see-all {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  color: var(--accent);
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.see-all:hover {
-  text-decoration: underline;
-}
+/* ── ここから下はnattsu-signal固有(canonの層2には含めない) ───────── */
 
 .hero {
   /* 左右paddingは.containerの1remを維持する(shorthandで0を指定すると
@@ -389,7 +87,9 @@ a {
   max-width: 60ch;
 }
 
-/* ── GitHub草 ─────────────────────────── */
+/* ── GitHub+YouTube+note+Qiita+Blueskyの発信活動カレンダー(PublishingActivity.astro) ── */
+/* 2026-09-20確認: 単純なGitHub草ではなく多ソース対応の実物。局所的な機能のため
+   canonの層2には含めず、nattsu-signal固有のまま維持する。 */
 
 :root {
   --grass-0: var(--bg-tertiary);
@@ -409,7 +109,10 @@ a {
   stroke-width: 1;
 }
 
-.contributions .status {
+/* 読み込み中/エラー時の素のテキスト表示。canonの.status(枠付きバッジ)とは別物
+   のため2026-09-20に.status-textへ改名し衝突を避けた(BlueskyTimeline.astro/
+   GithubContributions.astro/PublishingActivity.astroで使用)。 */
+.status-text {
   font-size: 0.8rem;
   color: var(--text-muted);
 }

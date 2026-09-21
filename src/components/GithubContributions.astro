@@ -6,7 +6,7 @@ const { username } = Astro.props;
 ---
 
 <div class="contributions" data-username={username}>
-  <p class="status">読み込み中…</p>
+  <p class="status-text">読み込み中…</p>
 </div>
 
 <script>
@@ -62,7 +62,7 @@ const { username } = Astro.props;
         </svg>
       `;
     } catch (e) {
-      root.innerHTML = `<p class="status">GitHub草の取得に失敗しました。<a href="https://github.com/${username}" target="_blank" rel="noopener noreferrer">GitHubで見る ↗</a></p>`;
+      root.innerHTML = `<p class="status-text">GitHub草の取得に失敗しました。<a href="https://github.com/${username}" target="_blank" rel="noopener noreferrer">GitHubで見る ↗</a></p>`;
     }
   }
 
