@@ -3,7 +3,7 @@ import '../styles/global.css';
 
 interface Props {
   title: string;
-  active: 'home' | 'about' | 'opus' | 'article' | 'timeline' | 'study';
+  active: 'home' | 'about' | 'opus' | 'museum' | 'article' | 'timeline' | 'study';
   noindex?: boolean;
 }
 
@@ -17,6 +17,7 @@ const nav: { href: string; label: string; key: Props['active'] }[] = [
   { href: base, label: 'Home', key: 'home' },
   { href: `${base}about/`, label: 'About', key: 'about' },
   { href: `${base}opus/`, label: 'Opus', key: 'opus' },
+  { href: `${base}museum/`, label: 'Museum', key: 'museum' },
   { href: `${base}article/`, label: 'Article', key: 'article' },
   { href: `${base}timeline/`, label: 'Timeline', key: 'timeline' },
 ];
