@@ -2,11 +2,6 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PublishingActivity from '../../components/PublishingActivity.astro';
 
-const tech = [
-  'Rust', 'C', 'C++', 'Python', 'TypeScript', 'WebAssembly',
-  'Tauri', 'Godot', 'Unity', 'Web Audio API', 'Svelte', 'Astro',
-];
-
 const links = [
   { label: 'GitHub', href: 'https://github.com/nattsu628878' },
   { label: 'Bluesky', href: 'https://bsky.app/profile/nattsu628878.bsky.social' },
@@ -33,18 +28,9 @@ const links = [
       </ul>
     </section>
 
-    <section style="margin-bottom: 2rem;">
+    <section>
       <h2 class="subsection-title">GitHub Activity</h2>
       <PublishingActivity />
-    </section>
-
-    <section>
-      <h2 class="subsection-title">Tech</h2>
-      <ul style="list-style: none; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        {tech.map((t) => (
-          <li style="background: var(--accent-bg); color: var(--accent-dark); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 500;">{t}</li>
-        ))}
-      </ul>
     </section>
   </div>
 </BaseLayout>
