@@ -7,10 +7,6 @@ const tech = [
   'Tauri', 'Godot', 'Unity', 'Web Audio API', 'Svelte', 'Astro',
 ];
 
-const software = [
-  'Logic Pro', 'Ableton Live', 'Renoise',
-];
-
 const links = [
   { label: 'GitHub', href: 'https://github.com/nattsu628878' },
   { label: 'Bluesky', href: 'https://bsky.app/profile/nattsu628878.bsky.social' },
@@ -42,20 +38,11 @@ const links = [
       <PublishingActivity />
     </section>
 
-    <section style="margin-bottom: 2rem;">
+    <section>
       <h2 class="subsection-title">Tech</h2>
       <ul style="list-style: none; display: flex; gap: 0.5rem; flex-wrap: wrap;">
         {tech.map((t) => (
           <li style="background: var(--accent-bg); color: var(--accent-dark); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 500;">{t}</li>
-        ))}
-      </ul>
-    </section>
-
-    <section>
-      <h2 class="subsection-title">Creative Software</h2>
-      <ul style="list-style: none; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        {software.map((s) => (
-          <li style="background: var(--accent-bg); color: var(--accent-dark); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 500;">{s}</li>
         ))}
       </ul>
     </section>
