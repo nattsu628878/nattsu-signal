@@ -8,7 +8,6 @@ const gameUrl = `${base}museum/game/`;
 <BaseLayout title="Museum" active="museum">
   <div class="container museum-page">
     <div class="museum-heading">
-      <h1 class="section-title">Museum</h1>
       <a href={gameUrl} target="_blank" rel="noopener noreferrer">open in new tab ↗</a>
     </div>
     <div class="museum-frame">
@@ -30,19 +29,14 @@ const gameUrl = `${base}museum/game/`;
 
   .museum-heading {
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 1rem;
-  }
-
-  .museum-heading .section-title {
-    flex: 1;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
   }
 
   .museum-heading a {
-    color: var(--accent);
+    color: var(--text-secondary);
     font-family: var(--font-mono);
-    font-size: 0.8rem;
+    font-size: 0.68rem;
     text-decoration: none;
     white-space: nowrap;
   }
@@ -68,10 +62,6 @@ const gameUrl = `${base}museum/game/`;
   @media (max-width: 640px) {
     .museum-frame {
       min-height: 380px;
-    }
-
-    .museum-heading {
-      align-items: center;
     }
   }
 </style>
