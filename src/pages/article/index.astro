@@ -12,14 +12,23 @@ const formatDate = (iso: string) => {
 
 <BaseLayout title="Article" active="article">
   <div class="container">
-    <h1 class="section-title">Article</h1>
-    <p class="lead">
-      <a
-        href="https://note.com/nattsu_628878"
-        target="_blank"
-        rel="noopener noreferrer">note ↗</a
-      >
-    </p>
+    <div class="section-header-row">
+      <h1 class="section-title">Article</h1>
+      <div class="header-links">
+        <a
+          class="see-all"
+          href="https://note.com/nattsu_628878"
+          target="_blank"
+          rel="noopener noreferrer">note ↗</a
+        >
+        <a
+          class="see-all"
+          href="https://qiita.com/nattsu"
+          target="_blank"
+          rel="noopener noreferrer">Qiita ↗</a
+        >
+      </div>
+    </div>
 
     {
       articles.length === 0 ? (
@@ -44,18 +53,9 @@ const formatDate = (iso: string) => {
 </BaseLayout>
 
 <style>
-  .lead {
-    margin-bottom: 1.5rem;
-    color: var(--text-secondary);
-  }
-
-  .lead a {
-    color: var(--accent);
-    text-decoration: none;
-  }
-
-  .lead a:hover {
-    text-decoration: underline;
+  .header-links {
+    display: flex;
+    gap: 1rem;
   }
 
   .empty {
