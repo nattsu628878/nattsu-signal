@@ -57,7 +57,7 @@ const { handle, limit = 30 } = Astro.props;
       const posts = data.feed.filter((item) => !item.reason).map((item) => item.post);
 
       if (posts.length === 0) {
-        root.innerHTML = `<p class="status-text">No posts yet. <a href="${profileUrl}" target="_blank" rel="noopener noreferrer">View on Bluesky ↗</a></p>`;
+        root.innerHTML = `<p class="status-text">No posts yet. <a href="${profileUrl}" target="_blank" rel="noopener noreferrer">View on Bluesky <span class="arrow">↗</span></a></p>`;
         return;
       }
 
@@ -75,13 +75,13 @@ const { handle, limit = 30 } = Astro.props;
               <time datetime="${escapeHtml(post.record.createdAt ?? '')}">${formatDate(post.record.createdAt)}</time>
               <div class="bsky-text">${text}</div>
               ${images ? `<div class="bsky-images">${images}</div>` : ''}
-              <a class="link-out" href="${permalink(post.uri, handle)}" target="_blank" rel="noopener noreferrer">open ↗</a>
+              <a class="link-out" href="${permalink(post.uri, handle)}" target="_blank" rel="noopener noreferrer">open <span class="arrow">↗</span></a>
             </article>
           `;
         })
         .join('');
     } catch {
-      root.innerHTML = `<p class="status-text">Failed to load Bluesky. <a href="${profileUrl}" target="_blank" rel="noopener noreferrer">View on Bluesky ↗</a></p>`;
+      root.innerHTML = `<p class="status-text">Failed to load Bluesky. <a href="${profileUrl}" target="_blank" rel="noopener noreferrer">View on Bluesky <span class="arrow">↗</span></a></p>`;
     }
   }
 

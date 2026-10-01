@@ -22,7 +22,7 @@ const links = [
         {links.map((l) => (
           <li>
             <a href={l.href} target="_blank" rel="noopener noreferrer" style="color: var(--accent); font-weight: 600; text-decoration: none;">
-              {l.label} ↗
+              {l.label} <span class="arrow">↗</span>
             </a>
           </li>
         ))}

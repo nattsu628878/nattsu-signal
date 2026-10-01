@@ -87,6 +87,13 @@
   max-width: 60ch;
 }
 
+/* 外部リンクの矢印(↗)。リンクごとに書体(mono/body)や太さが違うと矢印の形が
+   揃わないため、矢印だけ本文書体の太字に固定する(Aboutのリンクの見た目が基準)。 */
+.arrow {
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+
 /* ── GitHub+YouTube+note+Qiita+Blueskyの発信活動カレンダー(PublishingActivity.astro) ── */
 /* 2026-09-20確認: 単純なGitHub草ではなく多ソース対応の実物。局所的な機能のため
    canonの層2には含めず、nattsu-signal固有のまま維持する。 */

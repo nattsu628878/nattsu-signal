@@ -27,6 +27,6 @@ const imageSrc = `${import.meta.env.BASE_URL}${image.replace(/^\//, '')}`;
     </div>
     <h3>{title}</h3>
     <p>{description}</p>
-    {link && <span class="link-out">open ↗</span>}
+    {link && <span class="link-out">open <span class="arrow">↗</span></span>}
   </div>
 </Tag>
