@@ -21,8 +21,10 @@ featured.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
   {featured.length > 0 && (
     <section class="container featured" aria-labelledby="featured-heading">
       <div class="section-header-row">
-        <h2 class="section-title" id="featured-heading">Featured works</h2>
-        <a class="see-all" href={opusUrl}>View all works <span class="arrow" aria-hidden="true">→</span></a>
+        <h2 class="section-title" id="featured-heading">Opus</h2>
+        <a class="see-all" href={opusUrl} aria-label="View all Opus entries">
+          View all <span class="arrow" aria-hidden="true">→</span>
+        </a>
       </div>
       <div class="opus-grid">
         {featured.map((item) => (
