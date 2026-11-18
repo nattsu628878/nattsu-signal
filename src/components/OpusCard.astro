@@ -1,14 +1,16 @@
 ---
 interface Props {
+  id: string;
   title: string;
   category: 'dev' | 'music' | 'photo';
   description: string;
   link?: string;
+  linkLabel?: string;
   image: string;
   org?: 'nattsu' | 'kzgrm';
 }
 
-const { title, category, description, link, image, org = 'nattsu' } = Astro.props;
+const { id, title, category, description, link, linkLabel = 'Open', image, org = 'nattsu' } = Astro.props;
 const Tag = link ? 'a' : 'div';
 const linkProps = link ? { href: link, target: '_blank', rel: 'noopener noreferrer' } : {};
 // contentの image は "/opus/xxx.png"（または .webp）というルート絶対パスで保存されているため、
@@ -16,7 +18,7 @@ const linkProps = link ? { href: link, target: '_blank', rel: 'noopener noreferr
 const imageSrc = `${import.meta.env.BASE_URL}${image.replace(/^\//, '')}`;
 ---
 
-<Tag class:list={['opus-card', { 'opus-card--kzgrm': org === 'kzgrm' }]} {...linkProps}>
+<Tag id={id} class:list={['opus-card', { 'opus-card--kzgrm': org === 'kzgrm' }]} {...linkProps}>
   <div class="thumb">
     <img src={imageSrc} alt={`${title} screenshot`} loading="lazy" />
   </div>
@@ -26,7 +28,13 @@ const imageSrc = `${import.meta.env.BASE_URL}${image.replace(/^\//, '')}`;
       {org === 'kzgrm' && <span class="org-badge">kzgrm</span>}
     </div>
     <h3>{title}</h3>
-    <p>{description}</p>
-    {link && <span class="link-out">open <span class="arrow">↗</span></span>}
+    <p lang="ja">{description}</p>
+    {link && <span class="link-out">{linkLabel} <span class="arrow" aria-hidden="true">↗</span></span>}
   </div>
 </Tag>
+
+<style>
+  .opus-card {
+    scroll-margin-top: 5rem;
+  }
+</style>

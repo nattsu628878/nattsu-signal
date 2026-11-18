@@ -15,8 +15,16 @@ const items = (await getCollection('opus')).sort((a, b) => {
 <BaseLayout title="Opus" active="opus">
   <div class="container">
     <h1 class="section-title">Opus</h1>
+    <p class="intro" lang="ja">Nattsuが個人やサークルで制作した作品とツールを紹介します。</p>
     <div class="opus-grid">
-      {items.map((item) => <OpusCard {...item.data} />)}
+      {items.map((item) => <OpusCard id={item.id} {...item.data} />)}
     </div>
   </div>
 </BaseLayout>
+
+<style>
+  .intro {
+    margin-bottom: var(--space-6);
+    color: var(--text-secondary);
+  }
+</style>
