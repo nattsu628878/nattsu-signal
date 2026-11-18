@@ -1,18 +1,45 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import OpusCard from '../components/OpusCard.astro';
 import VideoGallery from '../components/VideoGallery.astro';
 import { getVideos } from '../lib/videos';
 
-const videos = await getVideos();
+const opusUrl = `${import.meta.env.BASE_URL}opus/`;
+const [featured, videos] = await Promise.all([
+  getCollection('opus', ({ data }) => data.featured),
+  getVideos(),
+]);
+featured.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
 <BaseLayout title="Home" active="home">
   <div class="container hero">
     <h1>natʇsu</h1>
+    <p lang="ja">音楽、ソフトウェア、写真。Nattsuの作品と活動の記録。</p>
   </div>
-  <div class="container">
+  {featured.length > 0 && (
+    <section class="container featured" aria-labelledby="featured-heading">
+      <div class="section-header-row">
+        <h2 class="section-title" id="featured-heading">Featured works</h2>
+        <a class="see-all" href={opusUrl}>View all works <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+      <div class="opus-grid">
+        {featured.map((item) => (
+          <OpusCard
+            id={item.id}
+            {...item.data}
+            link={`${opusUrl}#${item.id}`}
+            linkLabel="View project"
+            external={false}
+          />
+        ))}
+      </div>
+    </section>
+  )}
+  <section class="container" aria-labelledby="videos-heading">
     <div class="section-header-row">
-      <h2 class="section-title">Gallery</h2>
+      <h2 class="section-title" id="videos-heading">Videos</h2>
       <a
         class="see-all"
         href="https://www.youtube.com/@nattsu6__8878"
@@ -21,5 +48,11 @@ const videos = await getVideos();
       >
     </div>
     <VideoGallery videos={videos} />
-  </div>
+  </section>
 </BaseLayout>
+
+<style>
+  .featured {
+    margin-bottom: var(--space-8);
+  }
+</style>
