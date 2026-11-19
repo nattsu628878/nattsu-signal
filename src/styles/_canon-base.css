@@ -656,9 +656,16 @@ dialog.canon-dialog {
   background: var(--bg-primary);
 }
 .canon-dialog .dialog-actions .btn { min-block-size: 2.75rem; }
+.canon-dialog .dialog-actions .btn:not(.secondary) {
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
+}
+.canon-dialog .dialog-actions .btn:not(.secondary):hover:enabled {
+  background: color-mix(in srgb, var(--accent-dark) 88%, black);
+}
+.canon-dialog .dialog-actions .btn.secondary { color: var(--text-primary); }
 .canon-dialog .dialog-actions .btn.secondary:hover:enabled {
   background: var(--bg-secondary);
-  color: var(--text-primary);
 }
 @media (max-width: 30rem) {
   .canon-dialog :is(.dialog-header, .dialog-body, .dialog-actions) { padding-inline: var(--space-4); }
