@@ -1,5 +1,10 @@
 # Astro Starter Kit: Minimal
 
+## Opusの作品ページ
+
+- `src/content/opus/<id>.md` の先頭に一覧用の情報を、本文に作品紹介を書きます。Markdown本文から `/opus/<id>/` が生成されます。
+- 専用の画面構成を使う作品は、同じMarkdownの先頭に `customPage: true` を指定し、`src/pages/opus/<id>.astro` にページを置きます。Web Synthがこの形です。作品専用のCSS・JS・映像は、そのページから読み込みます。
+
 ```sh
 npm create astro@latest -- --template minimal
 ```

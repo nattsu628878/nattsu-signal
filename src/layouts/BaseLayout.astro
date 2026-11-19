@@ -5,9 +5,10 @@ interface Props {
   title: string;
   active: 'home' | 'about' | 'opus' | 'museum' | 'article' | 'timeline' | 'study';
   noindex?: boolean;
+  documentTitle?: string;
 }
 
-const { title, active, noindex = false } = Astro.props;
+const { title, active, noindex = false, documentTitle = 'natʇsu' } = Astro.props;
 
 // GitHub Pagesのプロジェクトページ配信(base: /nattsu-signal)を考慮し、
 // サイト内リンクはすべてBASE_URL基準の相対パスにする。
@@ -40,7 +41,7 @@ const nav: { href: string; label: string; key: Props['active'] }[] = [
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
-    <title>natʇsu</title>
+    <title>{documentTitle}</title>
   </head>
   <body>
     <header class="site-header">

@@ -1,0 +1,100 @@
+---
+import { getEntry } from 'astro:content';
+import OpusLayout from '../../layouts/OpusLayout.astro';
+
+const entry = await getEntry('opus', 'web-synth');
+if (!entry) throw new Error('Missing Web Synth Opus entry.');
+
+const { title, description, image, link, linkLabel } = entry.data;
+const imageSrc = `${import.meta.env.BASE_URL}${image.replace(/^\//, '')}`;
+---
+
+<OpusLayout title={title}>
+  <article class="container">
+    <div class="hero-grid">
+      <header>
+        <h1>{title}</h1>
+        <p lang="ja">{description}</p>
+        {link && <a class="try" href={link}>{linkLabel ?? 'Open'} <span aria-hidden="true">↗</span></a>}
+      </header>
+      <img src={imageSrc} width="1280" height="800" alt="モジュールとケーブルを並べたWeb Synthの画面" lang="ja" />
+    </div>
+    <div class="guide" lang="ja">
+      <section>
+        <h2>音を組み立てる</h2>
+        <p>オシレーターにフィルターを足し、カットオフを動かすと、同じ音でも明るさが変わります。マスター画面を波形やスペクトラムに切り替えると、耳で聴いた変化を目でも追えます。</p>
+      </section>
+      <section>
+        <h2>変化を繰り返す</h2>
+        <p>つまみを動かす代わりに、LFOをフィルターにつないで周期的に揺らせます。シーケンサーを使うと、同じフレーズを繰り返しながら音色を比べられます。</p>
+      </section>
+    </div>
+  </article>
+</OpusLayout>
+
+<style>
+  article {
+    padding-bottom: var(--space-8);
+  }
+
+  .hero-grid, .guide {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .hero-grid {
+    align-items: center;
+  }
+
+  h1 {
+    margin-bottom: var(--space-3);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.1;
+  }
+
+  p {
+    max-width: 40ch;
+    line-height: 1.8;
+  }
+
+  .try {
+    display: inline-block;
+    margin-top: var(--space-4);
+    padding: var(--space-2) var(--space-4);
+    background: var(--accent-dark);
+    color: var(--bg-secondary);
+    font-family: var(--font-mono);
+  }
+
+  .try:hover {
+    background: var(--accent-hover);
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--border-color);
+  }
+
+  .guide {
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border-color);
+  }
+
+  h2 {
+    margin-bottom: var(--space-2);
+    font-size: 1.125rem;
+  }
+
+  @media (min-width: 720px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    }
+
+    .guide {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

@@ -27,15 +27,7 @@ featured.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
         </a>
       </div>
       <div class="opus-grid">
-        {featured.map((item) => (
-          <OpusCard
-            id={item.id}
-            {...item.data}
-            link={`${opusUrl}#${item.id}`}
-            linkLabel="View project"
-            external={false}
-          />
-        ))}
+        {featured.map((item) => <OpusCard id={item.id} {...item.data} />)}
       </div>
     </section>
   )}

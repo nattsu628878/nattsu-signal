@@ -1,0 +1,27 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<BaseLayout title={title} active="opus" documentTitle={`${title} · natʇsu`}>
+  <div class="container opus-navigation">
+    <a href={`${import.meta.env.BASE_URL}opus/`}><span aria-hidden="true">← </span>Opus</a>
+  </div>
+  <slot />
+</BaseLayout>
+
+<style>
+  .opus-navigation {
+    padding-block: var(--space-4);
+  }
+
+  .opus-navigation a {
+    color: var(--accent-dark);
+    font-family: var(--font-mono);
+  }
+</style>

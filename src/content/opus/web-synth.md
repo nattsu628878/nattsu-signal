@@ -8,4 +8,5 @@ image: "/opus/web-synth.png"
 date: 2026-02-05
 priority: 0
 featured: true
+customPage: true
 ---

@@ -13,6 +13,7 @@ const opus = defineCollection({
     date: z.coerce.date(),
     priority: z.number().int().default(1),
     featured: z.boolean().default(false),
+    customPage: z.boolean().default(false),
     org: z.enum(['nattsu', 'kzgrm']).default('nattsu'),
   }),
 });
